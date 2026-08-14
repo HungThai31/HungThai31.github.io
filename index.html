@@ -364,7 +364,7 @@
   <a href="#summary"><span class="tick"></span><span class="nm">In short</span></a>
   <a href="#email"><span class="tick"></span><span class="nm">Email routing</span></a>
   <a href="#voice"><span class="tick"></span><span class="nm">Voice agent</span></a>
-  <a href="#vision"><span class="tick"></span><span class="nm">Vision &amp; docs</span></a>
+  <a href="#vision"><span class="tick"></span><span class="nm">Report QC</span></a>
   <a href="#method"><span class="tick"></span><span class="nm">How I work</span></a>
   <a href="#spec"><span class="tick"></span><span class="nm">Spec</span></a>
   <a href="#contact"><span class="tick"></span><span class="nm">Contact</span></a>
@@ -702,15 +702,15 @@
 <section id="vision">
   <div class="wrap">
     <div class="sechead rv"><span class="secno">04</span><span class="secline"></span><span class="sectag">Case files 03–05</span></div>
-    <h2 class="rv">Before the language work, the platform had to read.</h2>
-    <p class="lead rv">Appraisers submit photographs, PDFs and signed reports. Three production systems check them.</p>
+    <h2 class="rv">Automating the quality check on every report.</h2>
+    <p class="lead rv">Before a finished appraisal goes back to the lender, someone has to review it: is it the right form, is every required photograph there, is it actually signed? Three production systems run that check and flag what a human needs to look at.</p>
 
     <div class="cards mt">
       <div class="card rv">
         <div class="k">Case 03 · In production</div>
         <div class="fig">90–98%</div>
         <h3>Document routing</h3>
-        <p>Sorts incoming appraisal documents into ~10 report types, trained on <b>~10,000 PDFs</b>.</p>
+        <p>Sorts every incoming appraisal document into ~10 report types so it lands in the right review queue automatically. Trained on <b>~10,000 PDFs</b>.</p>
         <p>Several report types share almost the same vocabulary and differ mainly in <em>structure</em> — table position, headers, signature blocks — so a layout-aware model beat text-only classification.</p>
         <div class="tech">LayoutLMv3 · PaddleOCR</div>
       </div>
@@ -730,6 +730,11 @@
         <p>I removed ruled lines morphologically, suppressed printed text using OCR boxes, then used FFT analysis to find the remaining irregular blobs. Rebuilt with YOLO once the tooling matured.</p>
         <div class="tech">OpenCV · FFT · OCR · later YOLO</div>
       </div>
+    </div>
+
+    <div class="away rv">
+      <span class="lb">What this shows</span>
+      <p>Each of these replaces a check a person used to do by eye — and each one raises its hand when it is unsure, instead of quietly guessing.</p>
     </div>
   </div>
 </section>
