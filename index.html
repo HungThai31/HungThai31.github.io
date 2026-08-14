@@ -111,7 +111,7 @@
   .portrait img{width:100%}   /* background matched + edges feathered in the file itself */
   @media (max-width:960px){
     .herogrid{grid-template-columns:1fr;gap:26px}
-    .portrait{max-width:190px}
+    .portrait{max-width:220px;margin:0 auto}
   }
 
   /* ── figures: tell the reader what they're looking at ─── */
@@ -165,6 +165,10 @@
   .away p{font-family:var(--serif);font-size:clamp(19px,2.3vw,25px);line-height:1.38;color:var(--text)}
 
   /* ── layout helpers ───────────────────────────────────── */
+  /* grid children default to min-width:auto, so a wide table (min-width:440px)
+     blows the whole track past the viewport on phones. This is the fix. */
+  .two>*,.cards>*,.grid2>*,.recs>*,.herogrid>*,.tri>*,.spec>*{min-width:0}
+  .tw{max-width:100%}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,4vw,52px);align-items:start}
   .two.lean{grid-template-columns:1fr .85fr}
   @media (max-width:900px){.two,.two.lean{grid-template-columns:1fr;gap:32px}}
@@ -725,10 +729,11 @@
       <div class="card rv">
         <div class="k">Case 05 · First production project</div>
         <div class="fig">Classical CV</div>
-        <h3>Signature detection</h3>
-        <p>Validates that reports are actually signed. Built <b>before object-detection tooling was available to me</b> — so it uses no model and no training data at all.</p>
-        <p>I removed ruled lines morphologically, suppressed printed text using OCR boxes, then used FFT analysis to find the remaining irregular blobs. Rebuilt with YOLO once the tooling matured.</p>
-        <div class="tech">OpenCV · FFT · OCR · later YOLO</div>
+        <h3>Signature verification</h3>
+        <p>Detects whether appraisal reports carry the required signatures before they enter downstream processing.</p>
+        <p>Built the first version <b>entirely with classical computer vision</b> — morphological processing, OCR-based text suppression, and FFT analysis to isolate irregular signature regions — because no suitable detector was available to me at the time.</p>
+        <p>Later migrated the pipeline to <b>YOLO</b> as object-detection tooling matured, replacing the heuristic approach with a detection model that is far easier to maintain and retrain.</p>
+        <div class="tech">OpenCV · OCR · FFT → YOLO</div>
       </div>
     </div>
 
