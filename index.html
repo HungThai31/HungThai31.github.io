@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hung Thai — AI Engineer</title>
+<meta name="description" content="Sole AI engineer for a US appraisal company. Five production systems on-premise, including email routing that resolves 95% of 700–1,300 messages a day." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --void:#070B12; --ground:#0A1019; --panel:#101927; --panel-2:#0E1622;
+    --hair:#1D2A3E; --hair-2:#2A3B54;
+    --text:#EFE9DA; --body:#AEB8C8; --dimmer:#6E7A8E;
+    --brass:#E0A94A; --rust:#D2593F; --signal:#6FB13F;
+    --paper:#FAF6EC; --paper-edge:#D9CFB6;
+    --serif:'Fraunces',Georgia,serif;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --wrap:1180px; --measure:60ch;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{background:var(--ground);color:var(--text);font-family:var(--sans);
+       font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  ::selection{background:var(--brass);color:var(--void)}
+  img{max-width:100%;height:auto;display:block}
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:3px}
+  h1,h2,h3{font-family:var(--serif);font-weight:500;line-height:1.1;letter-spacing:-.015em;text-wrap:balance}
+  .wrap{max-width:var(--wrap);margin:0 auto;padding:0 clamp(20px,5vw,44px)}
+  .body{color:var(--body)}
+
+  /* ── chrome ───────────────────────────────────────────── */
+  #bar{position:fixed;top:0;left:0;height:2px;width:0;background:var(--brass);z-index:100;
+       box-shadow:0 0 12px rgba(224,169,74,.55)}
+  header{position:fixed;top:0;left:0;right:0;z-index:90;height:56px;display:flex;align-items:center;
+         background:rgba(10,16,25,.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+         border-bottom:1px solid var(--hair)}
+  .hbar{display:flex;align-items:center;gap:14px;width:100%}
+  .hname{font-family:var(--mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+         text-decoration:none;font-weight:600}
+  .hname i{color:var(--brass);font-style:normal}
+  .hsp{flex:1}
+  .hmeta{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer)}
+  @media (max-width:760px){.hmeta.hide-s{display:none}}
+  .hcta{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+        text-decoration:none;border:1px solid var(--hair-2);padding:7px 14px;border-radius:2px;
+        transition:border-color .2s,color .2s,background .2s;white-space:nowrap}
+  .hcta:hover{border-color:var(--brass);color:var(--brass);background:rgba(224,169,74,.08)}
+  .hcta.solid{background:var(--brass);color:var(--void);border-color:var(--brass);font-weight:600}
+  .hcta.solid:hover{background:#EDBA61}
+
+  .rail{position:fixed;left:22px;top:50%;transform:translateY(-50%);z-index:80;display:flex;flex-direction:column;gap:3px}
+  .rail a{display:flex;align-items:center;gap:9px;text-decoration:none;padding:3px 0;
+          font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--dimmer);transition:color .25s}
+  .rail a .tick{width:14px;height:1px;background:currentColor;transition:width .25s var(--ease)}
+  .rail a .nm{opacity:0;transform:translateX(-4px);transition:opacity .25s,transform .25s}
+  .rail a:hover,.rail a.on{color:var(--brass)}
+  .rail a.on .tick{width:26px}
+  .rail:hover a .nm{opacity:1;transform:none}
+  @media (max-width:1260px){.rail{display:none}}
+
+  /* ── sections ─────────────────────────────────────────── */
+  section{padding:clamp(66px,9vw,116px) 0;position:relative;border-top:1px solid var(--hair)}
+  section.alt{background:var(--panel-2)}
+  .sechead{display:flex;align-items:baseline;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+  .secno{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--dimmer)}
+  .secline{flex:1;height:1px;background:var(--hair);max-width:90px}
+  .sectag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer)}
+  h2{font-size:clamp(29px,4.6vw,50px);max-width:18ch}
+  .lead{font-size:clamp(17.5px,2vw,21px);color:var(--text);max-width:var(--measure);margin-top:20px;line-height:1.5}
+  p.sm{font-size:16px;color:var(--body);max-width:var(--measure)}
+  p.sm+p.sm{margin-top:13px}
+  .mt{margin-top:clamp(28px,4vw,48px)}
+  .mt-s{margin-top:26px}
+  h3.sub{font-size:20px;margin-bottom:14px}
+  em{font-style:italic;color:var(--brass)}
+
+  /* ── hero ─────────────────────────────────────────────── */
+  .hero{border-top:none;min-height:100svh;display:flex;align-items:center;
+        padding-top:100px;padding-bottom:56px;overflow:hidden}
+  #wave{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.45;pointer-events:none}
+  .hero .wrap{position:relative;z-index:1;width:100%}
+  .kicker{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-size:11.5px;
+        letter-spacing:.18em;text-transform:uppercase;color:var(--body);margin-bottom:26px;flex-wrap:wrap}
+  .rec{width:7px;height:7px;border-radius:50%;background:var(--rust);flex:0 0 auto;
+       box-shadow:0 0 0 0 rgba(210,89,63,.7);animation:pulse 2.4s ease-out infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(210,89,63,.5)}70%{box-shadow:0 0 0 9px rgba(210,89,63,0)}100%{box-shadow:0 0 0 0 rgba(210,89,63,0)}}
+  @media (prefers-reduced-motion:reduce){.rec{animation:none}}
+  .hero h1{font-size:clamp(36px,7vw,80px);font-weight:500;max-width:15ch;letter-spacing:-.025em}
+  .hero .lede{margin-top:24px;font-size:clamp(17px,1.9vw,20px);color:var(--body);max-width:56ch}
+  .idrow{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:30px;padding-top:20px;
+         border-top:1px solid var(--hair);font-family:var(--mono);font-size:12.5px;color:var(--dimmer)}
+  .idrow b{color:var(--text);font-weight:500}
+  .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+  .btn{font-family:var(--mono);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;
+       text-decoration:none;padding:14px 24px;border-radius:2px;display:inline-flex;align-items:center;gap:10px;
+       transition:transform .2s var(--ease),background .2s,border-color .2s,color .2s}
+  .btn.p{background:var(--brass);color:var(--void);font-weight:600}
+  .btn.p:hover{transform:translateY(-2px);background:#EDBA61}
+  .btn.g{border:1px solid var(--hair-2);color:var(--text)}
+  .btn.g:hover{border-color:var(--brass);color:var(--brass);transform:translateY(-2px)}
+
+  /* ── hero portrait ────────────────────────────────────── */
+  .herogrid{display:grid;grid-template-columns:1fr 340px;gap:clamp(28px,5vw,64px);align-items:center}
+  .portrait{position:relative}
+  .portrait img{width:100%}   /* background matched + edges feathered in the file itself */
+  @media (max-width:960px){
+    .herogrid{grid-template-columns:1fr;gap:26px}
+    .portrait{max-width:190px}
+  }
+
+  /* ── figures: tell the reader what they're looking at ─── */
+  .fighead{max-width:58ch;margin-bottom:20px}
+  .fignum{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass)}
+  .fighead h3{font-size:clamp(20px,2.6vw,26px);margin:11px 0 11px}
+  .fighead p{font-size:16px;color:var(--body);line-height:1.55}
+  .fighead p b{color:var(--text);font-weight:600}
+
+  /* ── the three takeaways ──────────────────────────────── */
+  .tri{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--hair);background:var(--panel)}
+  .tri>div{padding:clamp(24px,3vw,34px);border-right:1px solid var(--hair)}
+  .tri>div:last-child{border-right:none}
+  .tri .no{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--brass)}
+  .tri h3{font-size:clamp(20px,2.4vw,25px);margin:14px 0 12px}
+  .tri p{font-size:15.5px;color:var(--body)}
+  .tri b{color:var(--text);font-weight:600}
+  @media (max-width:900px){.tri{grid-template-columns:1fr}
+    .tri>div{border-right:none;border-bottom:1px solid var(--hair)}
+    .tri>div:last-child{border-bottom:none}}
+
+  /* ── answer-first strip (repeated at every case) ──────── */
+  dl.par{display:grid;grid-template-columns:118px 1fr;gap:0 24px;border-top:1px solid var(--hair)}
+  dl.par dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
+            color:var(--dimmer);padding:18px 0 0}
+  dl.par dd{font-size:17px;color:var(--body);padding:16px 0 18px;border-bottom:1px solid var(--hair);
+            line-height:1.5}
+  dl.par dd:last-of-type{border-bottom:none}
+  dl.par dd b{color:var(--text);font-weight:600}
+  dl.par dd.hit{color:var(--text)}
+  dl.par dd.hit b{color:var(--brass)}
+  @media (max-width:640px){dl.par{grid-template-columns:1fr;gap:0}
+    dl.par dt{padding:16px 0 0} dl.par dd{padding:6px 0 16px}}
+
+  /* ── the big number ───────────────────────────────────── */
+  .kpi{border:1px solid var(--hair);border-left:3px solid var(--brass);background:var(--panel);
+       padding:clamp(24px,3vw,32px)}
+  .kpi .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer)}
+  .kpi .fig{font-family:var(--mono);font-weight:600;font-size:clamp(46px,7.5vw,76px);color:var(--brass);
+            line-height:.92;margin-top:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .kpi .cap{font-size:16.5px;color:var(--text);margin-top:16px;line-height:1.45}
+  .kpi .from{font-family:var(--mono);font-size:13px;color:var(--dimmer);margin-top:10px}
+  .kpi.split{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+  .kpi.split .fig{font-size:clamp(36px,5vw,54px)}
+  @media (max-width:560px){.kpi.split{grid-template-columns:1fr}}
+
+  /* ── takeaway line ────────────────────────────────────── */
+  .away{border-left:3px solid var(--brass);padding:2px 0 2px 22px;margin-top:clamp(30px,4vw,44px);max-width:58ch}
+  .away .lb{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+            color:var(--brass);margin-bottom:10px}
+  .away p{font-family:var(--serif);font-size:clamp(19px,2.3vw,25px);line-height:1.38;color:var(--text)}
+
+  /* ── layout helpers ───────────────────────────────────── */
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,4vw,52px);align-items:start}
+  .two.lean{grid-template-columns:1fr .85fr}
+  @media (max-width:900px){.two,.two.lean{grid-template-columns:1fr;gap:32px}}
+  .stack{display:flex;flex-direction:column;gap:clamp(24px,3.4vw,40px)}
+
+  /* ── exhibits ─────────────────────────────────────────── */
+  .exhibit{border:1px solid var(--hair);border-radius:3px;overflow:hidden;background:var(--panel-2)}
+  .exhibit img{display:block;margin:0 auto;width:100%}
+  .exhibit.tall img{width:auto}
+  .exhibit.tall img{max-height:min(78vh,900px);width:auto}
+  figure{margin:0}
+  figcaption{font-size:14px;color:var(--dimmer);margin-top:13px;line-height:1.5;max-width:56ch}
+
+  /* ── bullets with bold lead-ins ───────────────────────── */
+  ul.pts{list-style:none;display:flex;flex-direction:column;gap:16px}
+  ul.pts li{position:relative;padding-left:22px;font-size:16px;color:var(--body);line-height:1.55}
+  ul.pts li::before{content:"";position:absolute;left:0;top:11px;width:8px;height:1px;background:var(--brass)}
+  ul.pts li b{color:var(--text);font-weight:600}
+  ol.steps{list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:16px}
+  ol.steps li{counter-increment:s;position:relative;padding-left:40px;font-size:16px;color:var(--body);line-height:1.55}
+  ol.steps li b{color:var(--text);font-weight:600}
+  ol.steps li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:2px;
+    font-family:var(--mono);font-size:11.5px;color:var(--brass);letter-spacing:.08em}
+  code{font-family:var(--mono);font-size:.84em;color:var(--brass);background:rgba(224,169,74,.1);
+       padding:2px 7px;border-radius:2px;white-space:nowrap}
+
+  /* ── cards ────────────────────────────────────────────── */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media (max-width:900px){.cards{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--hair);border-radius:3px;padding:26px;
+        transition:border-color .25s,transform .25s var(--ease)}
+  .card:hover{border-color:var(--hair-2);transform:translateY(-3px)}
+  .card .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dimmer)}
+  .card .fig{font-family:var(--mono);font-weight:600;font-size:clamp(26px,3.4vw,34px);color:var(--brass);
+             margin:14px 0 4px;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .card h3{font-size:19px;margin:12px 0 9px}
+  .card p{font-size:15px;color:var(--body);line-height:1.55}
+  .card p+p{margin-top:10px}
+  .card .tech{font-family:var(--mono);font-size:11.5px;color:var(--dimmer);margin-top:16px;
+              padding-top:13px;border-top:1px solid var(--hair)}
+  .stackline{font-family:var(--mono);font-size:12px;color:var(--dimmer);margin-top:20px;
+             padding-top:14px;border-top:1px solid var(--hair)}
+
+  /* ── case header ──────────────────────────────────────── */
+  .cfile{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .cno{font-family:var(--mono);font-size:11px;letter-spacing:.16em;background:var(--brass);color:var(--void);
+       padding:5px 10px;border-radius:2px;font-weight:600}
+  .cstat{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+         color:var(--signal);border:1px solid rgba(111,177,63,.4);padding:4px 9px;border-radius:2px}
+  .cstat.proto{color:var(--body);border-color:var(--hair-2)}
+
+  /* ── email question router ────────────────────────────── */
+  .router{background:var(--panel);border:1px solid var(--hair);border-radius:3px;overflow:hidden}
+  .router-top{padding:13px 20px;border-bottom:1px solid var(--hair);font-family:var(--mono);
+              font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dimmer)}
+  .router-body{padding:clamp(20px,3vw,28px)}
+  .qgrid{display:flex;flex-wrap:wrap;gap:7px}
+  .q{font-family:var(--mono);font-size:11px;padding:7px 10px;border-radius:2px;
+     border:1px solid var(--hair-2);color:var(--dimmer);transition:all .4s var(--ease)}
+  .q.on{background:var(--brass);border-color:var(--brass);color:var(--void);font-weight:600}
+  .q.off{opacity:.4;text-decoration:line-through}
+  .rflow{display:flex;flex-direction:column;gap:9px;margin-top:22px}
+  .rstep{border:1px solid var(--hair);border-radius:2px;padding:13px 16px;background:var(--panel-2)}
+  .rstep b{display:block;font-size:15px}
+  .rstep span{font-size:13.5px;color:var(--body)}
+  .rstep.hot{border-color:var(--brass);background:rgba(224,169,74,.08)}
+  .rstep.hot b{color:var(--brass)}
+  .rarrow{text-align:center;color:var(--dimmer);font-family:var(--mono);font-size:13px;line-height:1}
+
+  /* ── before / after ───────────────────────────────────── */
+  .ba{display:flex;flex-direction:column;gap:15px;margin-top:24px}
+  .barow{display:grid;grid-template-columns:1fr;gap:8px}
+  .barow .lb{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--body);
+             display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .barow .lb b{font-size:19px;color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:0}
+  .batrack{display:block;height:12px;background:var(--hair);border-radius:2px;overflow:hidden}
+  .bafill{display:block;height:100%;background:var(--hair-2);border-radius:2px;transform-origin:left;
+          transition:transform 1s var(--ease)}
+  .bafill.brass{background:var(--brass)}
+  .barow.now .lb b{color:var(--brass)}
+
+  /* ── entropy gate ─────────────────────────────────────── */
+  .gate{background:var(--panel);border:1px solid var(--hair);border-radius:3px;overflow:hidden}
+  .gate-top{display:flex;align-items:center;gap:12px;padding:13px 20px;border-bottom:1px solid var(--hair);
+            font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dimmer)}
+  .gate-top .live{color:var(--brass)}
+  .gate-body{padding:clamp(20px,3vw,28px)}
+  .gate-ctl label{display:block;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;
+                  text-transform:uppercase;color:var(--body);margin-bottom:14px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2px;background:var(--hair-2);
+    border-radius:2px;outline:none;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+    background:var(--brass);border:3px solid var(--panel);box-shadow:0 0 0 1px var(--brass);cursor:grab}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--brass);
+    border:3px solid var(--panel);box-shadow:0 0 0 1px var(--brass);cursor:grab}
+  .bars{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:end;height:150px;margin-top:26px}
+  .bcol{position:relative;height:100%}
+  .bfill{position:absolute;left:0;right:0;bottom:0;background:var(--hair-2);border-radius:2px 2px 0 0;
+         transition:height .18s linear,background .3s}
+  .bcol.top .bfill{background:var(--brass)}
+  .bval{position:absolute;left:0;right:0;text-align:center;font-family:var(--mono);font-size:11.5px;
+        color:var(--body);font-variant-numeric:tabular-nums;transition:bottom .18s linear}
+  .blab{font-family:var(--mono);font-size:10px;color:var(--dimmer);text-align:center;
+        padding-top:9px;border-top:1px solid var(--hair);margin-top:10px}
+  .gate-out{display:flex;flex-wrap:wrap;align-items:center;gap:16px 26px;margin-top:22px;padding-top:20px;
+            border-top:1px solid var(--hair)}
+  .ro{font-family:var(--mono);font-size:11px;color:var(--dimmer);letter-spacing:.1em;text-transform:uppercase}
+  .ro b{display:block;font-size:23px;color:var(--text);letter-spacing:0;text-transform:none;margin-top:6px;
+        font-variant-numeric:tabular-nums}
+  .verdict{margin-left:auto;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+           padding:11px 17px;border-radius:2px;font-weight:600;transition:background .3s,color .3s}
+  .verdict.fast{background:var(--brass);color:var(--void)}
+  .verdict.slow{background:rgba(210,89,63,.16);color:var(--rust);box-shadow:inset 0 0 0 1px rgba(210,89,63,.45)}
+  @media (max-width:560px){.verdict{margin-left:0;width:100%;text-align:center}}
+
+  /* ── recordings ───────────────────────────────────────── */
+  .recs{display:grid;grid-template-columns:1fr 1fr;gap:clamp(22px,3vw,34px)}
+  @media (max-width:900px){.recs{grid-template-columns:1fr}}
+  .rc{background:var(--panel);border:1px solid var(--hair);border-radius:3px;overflow:hidden;transition:border-color .25s}
+  .rc:hover{border-color:var(--hair-2)}
+  .rc-top{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--hair);
+          font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dimmer)}
+  .rc video{width:100%;display:block;background:#000;aspect-ratio:1920/954}  /* browser chrome cropped off */
+  .rc-body{padding:22px}
+  .rc-body h3{font-size:19px;margin-bottom:9px}
+  .rc-body p{font-size:15px;color:var(--body);line-height:1.55}
+
+  /* ── table ────────────────────────────────────────────── */
+  .tw{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:15px;min-width:440px}
+  th,td{text-align:left;padding:14px 18px;border-bottom:1px solid var(--hair)}
+  thead th{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+           color:var(--dimmer);font-weight:500}
+  tbody th{font-weight:400;color:var(--body);font-size:14.5px}
+  td{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--text)}
+  th.fast,td.fast{color:var(--brass)}
+  td.fast{background:rgba(224,169,74,.07)}
+
+  /* ── spec ─────────────────────────────────────────────── */
+  .spec{display:grid;grid-template-columns:1fr 1fr;gap:0 40px}
+  @media (max-width:820px){.spec{grid-template-columns:1fr}}
+  .srow{display:grid;grid-template-columns:1fr 1.35fr;gap:18px;padding:15px 0;border-bottom:1px solid var(--hair);
+        align-items:baseline}
+  .srow .sk{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass)}
+  .srow .sv{font-size:14.5px;color:var(--body);line-height:1.5}
+
+  /* ── contact ──────────────────────────────────────────── */
+  .big{font-family:var(--serif);font-size:clamp(22px,4vw,42px);color:var(--brass);text-decoration:none;
+       border-bottom:2px solid transparent;transition:border-color .25s;word-break:break-word}
+  .big:hover{border-color:var(--brass)}
+  .cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:26px 36px;
+         margin-top:34px;padding-top:26px;border-top:1px solid var(--hair)}
+  .cgrid .ck{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+             text-transform:uppercase;color:var(--dimmer);margin-bottom:9px}
+  .cgrid a,.cgrid .cv{font-family:var(--mono);font-size:14.5px;color:var(--text);text-decoration:none}
+  .cgrid a{border-bottom:1px solid var(--hair-2);padding-bottom:3px;transition:color .2s,border-color .2s}
+  .cgrid a:hover{color:var(--brass);border-color:var(--brass)}
+  .cgrid .cv{color:var(--body)}
+  footer{border-top:1px solid var(--hair);margin-top:48px;padding-top:22px;display:flex;flex-wrap:wrap;
+         gap:10px;justify-content:space-between;font-family:var(--mono);font-size:11.5px;color:var(--dimmer)}
+
+  .rv{opacity:0;transform:translateY(16px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+  .rv.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}
+    .bafill{transition:none}}
+</style>
+</head>
+<body>
+
+<div id="bar"></div>
+
+<header>
+  <div class="wrap hbar">
+    <a class="hname" href="#cover">Hung Thai<i>.</i></a>
+    <span class="hmeta hide-s">AI Engineer</span>
+    <span class="hsp"></span>
+    <span class="hmeta hide-s" id="pct">000%</span>
+    <a class="hcta" href="assets/doc/Hung_Thai_AI_Engineer_CV.pdf" target="_blank" rel="noopener">CV ↓</a>
+    <a class="hcta solid" href="#contact">Contact</a>
+  </div>
+</header>
+
+<nav class="rail" aria-label="Section index">
+  <a href="#cover"><span class="tick"></span><span class="nm">Cover</span></a>
+  <a href="#summary"><span class="tick"></span><span class="nm">In short</span></a>
+  <a href="#email"><span class="tick"></span><span class="nm">Email routing</span></a>
+  <a href="#voice"><span class="tick"></span><span class="nm">Voice agent</span></a>
+  <a href="#vision"><span class="tick"></span><span class="nm">Vision &amp; docs</span></a>
+  <a href="#method"><span class="tick"></span><span class="nm">How I work</span></a>
+  <a href="#spec"><span class="tick"></span><span class="nm">Spec</span></a>
+  <a href="#contact"><span class="tick"></span><span class="nm">Contact</span></a>
+</nav>
+
+<!-- ════ COVER ═══════════════════════════════════════════ -->
+<section class="hero" id="cover">
+  <canvas id="wave" aria-hidden="true"></canvas>
+  <div class="wrap herogrid">
+    <div>
+      <div class="kicker rv"><span class="rec"></span> AI Engineer · 3 years · sole AI engineer for a US appraisal company</div>
+      <h1 class="rv">Production AI that knows when <em>not</em> to ask the model.</h1>
+      <p class="lede rv">Five AI systems, built alone, running on the company's own GPUs. The idea behind the best of them: let retrieval decide first, and spend the language model only where the uncertainty actually is.</p>
+      <div class="idrow rv">
+        <span><b>Thái Nam Hưng</b> · Hung Thai</span>
+        <span>Da Nang, Vietnam · remote with a US client since 2023</span>
+      </div>
+      <div class="cta rv">
+        <a class="btn p" href="#summary">Start here</a>
+        <a class="btn g" href="#voice">▶ Watch it run</a>
+        <a class="btn g" href="assets/doc/Hung_Thai_AI_Engineer_CV.pdf" target="_blank" rel="noopener">Open CV</a>
+      </div>
+    </div>
+    <div class="portrait rv">
+      <img src="assets/img/portrait.png" alt="Portrait of Hung Thai" width="700" height="700" />
+    </div>
+  </div>
+</section>
+
+<!-- ════ IN SHORT ════════════════════════════════════════ -->
+<section class="alt" id="summary">
+  <div class="wrap">
+    <div class="sechead rv"><span class="secno">01</span><span class="secline"></span><span class="sectag">In short</span></div>
+    <h2 class="rv">If you read nothing else, read these three.</h2>
+
+    <div class="tri mt rv">
+      <div>
+        <div class="no">01</div>
+        <h3>I own AI end to end.</h3>
+        <p>Sole AI engineer at a US appraisal company since 2023. <b>Five systems</b> — from framing the problem with non-technical staff, to training, to the GPU servers and database replication they run on.</p>
+      </div>
+      <div>
+        <div class="no">02</div>
+        <h3>The email pipeline is the proof.</h3>
+        <p>I replaced an inherited regex classifier and took automated resolution from <b>50–60% to 95%</b>, on <b>700–1,300 emails a day</b>, unattended.</p>
+      </div>
+      <div>
+        <div class="no">03</div>
+        <h3>The method is confidence routing.</h3>
+        <p>Retrieval answers when it is sure; the model is called only when it is not. <b>Fewer calls, lower latency, and fewer errors</b> — measured, not assumed.</p>
+      </div>
+    </div>
+
+    <div class="away rv">
+      <span class="lb">The through-line</span>
+      <p>Every system here runs on company GPU with no cloud AI. That constraint is what forced the interesting idea: model calls are a budget, so spend them only on genuine uncertainty.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════ CASE 01 · EMAIL ═════════════════════════════════ -->
+<section id="email">
+  <div class="wrap">
+    <div class="sechead rv"><span class="secno">02</span><span class="secline"></span><span class="sectag">Case file 01</span></div>
+    <div class="cfile rv"><span class="cno">Case 01</span><span class="cstat">In production</span></div>
+    <h2 class="rv">Email classification &amp; routing</h2>
+
+    <div class="two mt" style="align-items:start">
+      <div class="rv">
+        <dl class="par">
+          <dt>Problem</dt>
+          <dd>An inherited keyword-and-regex classifier auto-resolved only <b>50–60%</b> of the daily inbox. Everything else went to a human.</dd>
+          <dt>Approach</dt>
+          <dd>Rebuilt as an LLM pipeline that answers ~15 classification questions per email, then merges them into one routing decision. An embedding index ranks which questions are even worth asking.</dd>
+          <dt>Result</dt>
+          <dd class="hit"><b>95%</b> resolved automatically, with roughly <b>half the model calls</b> per email — reached over a year of iterating against daily QC feedback.</dd>
+        </dl>
+        <div class="stackline">Python · gpt-oss:20b via Ollama · LangChain · nomic-embed · temperature 0</div>
+      </div>
+
+      <div class="rv">
+        <div class="kpi">
+          <div class="k">Automated resolution</div>
+          <div class="fig">95%</div>
+          <div class="cap">of 700–1,300 emails a day, handled without a person touching them.</div>
+          <div class="from">↑ from 50–60% before the rebuild</div>
+        </div>
+        <div class="ba" id="ba">
+          <div class="barow">
+            <span class="lb">Before · regex <b>50–60%</b></span>
+            <span class="batrack"><span class="bafill" data-w="55"></span></span>
+          </div>
+          <div class="barow now">
+            <span class="lb">Now · LLM pipeline <b>95%</b></span>
+            <span class="batrack"><span class="bafill brass" data-w="95"></span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <figure class="rv" style="margin-top:clamp(40px,5vw,60px)">
+      <div class="fighead">
+        <span class="fignum">Figure 1</span>
+        <h3>Where the volume comes from</h3>
+        <p>Appraisers, lenders and borrowers all contact the same intake desk — by phone and by email. Every one of those requests used to be read and answered by a person.</p>
+      </div>
+      <div class="exhibit">
+        <img src="assets/img/problem.png" alt="Appraisers, lenders and borrowers all send calls and emails into one intake department that handles every request by hand" />
+      </div>
+      <figcaption>This is the inbox the pipeline now absorbs: 700–1,300 messages a day.</figcaption>
+    </figure>
+
+    <div class="two mt">
+      <div class="rv">
+        <h3 class="sub">Why it needed a router, not just a prompt</h3>
+        <p class="sm">Fifteen questions per email, each with 2–4 labels, across four recipient roles. As the question set grew, throughput — not accuracy — became the ceiling.</p>
+        <ul class="pts mt-s">
+          <li><b>Rank before asking.</b> An offline embedding index over labelled example phrasings scores all 15 questions against the incoming email.</li>
+          <li><b>Only the top 7 reach the model.</b> The other eight never run, which roughly halves calls per email.</li>
+          <li><b>Merge with safeguards.</b> Fee and payment requests can never be dropped when answers are combined.</li>
+          <li><b>Clean the input first.</b> Signatures, legal disclaimers and marketing footers are stripped, or they poison the classification.</li>
+          <li><b>Fail loudly, never hang.</b> Per-question hard timeouts, because nobody is watching it at 3 a.m.</li>
+        </ul>
+      </div>
+      <div class="rv">
+        <div class="router">
+          <div class="router-top">Question routing · one email</div>
+          <div class="router-body">
+            <div class="qgrid" id="qgrid" aria-hidden="true"></div>
+            <div class="rflow">
+              <div class="rstep"><b>Rank all 15 by embedding similarity</b><span>offline index of labelled phrasings</span></div>
+              <div class="rarrow">↓</div>
+              <div class="rstep hot"><b>Top 7 reach the LLM</b><span>the other 8 never run — ~50% fewer calls</span></div>
+              <div class="rarrow">↓</div>
+              <div class="rstep"><b>Merge → routing decision</b><span>fee and payment requests protected</span></div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Runs fully on-premise at temperature 0 — borrower PII never leaves the building, and the same email always produces the same answer.</figcaption>
+      </div>
+    </div>
+
+    <div class="away rv">
+      <span class="lb">What this shows</span>
+      <p>The gain did not come from a better prompt. It came from deciding, per email, which questions were worth a model call at all.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════ CASE 02 · VOICE ═════════════════════════════════ -->
+<section class="alt" id="voice">
+  <div class="wrap">
+    <div class="sechead rv"><span class="secno">03</span><span class="secline"></span><span class="sectag">Case file 02</span></div>
+    <div class="cfile rv"><span class="cno">Case 02</span><span class="cstat proto">Built solo · self-hosted</span></div>
+    <h2 class="rv">Real-time voice &amp; text agent</h2>
+
+    <div class="two mt" style="align-items:start">
+      <div class="rv">
+        <dl class="par">
+          <dt>Problem</dt>
+          <dd>Appraisers, lenders and borrowers phone in with the same requests all day. Any assistant had to run on one GPU, with <b>no cloud AI</b> and no customer data leaving the building.</dd>
+          <dt>Approach</dt>
+          <dd>One state machine handling identification, order lookup and routing across <b>32 tools</b> and three caller roles — shared by the voice and text channels, so the conversation logic exists once.</dd>
+          <dt>Result</dt>
+          <dd class="hit">A live phone-style assistant where <b>38.5%</b> of routing decisions skip the language model completely — and those decisions were <b>100% correct</b>.</dd>
+        </dl>
+        <div class="stackline">Python · LangGraph · LiveKit · FasterWhisper · Kokoro · Silero VAD · FastAPI · Twilio</div>
+      </div>
+      <div class="rv">
+        <div class="kpi split">
+          <div>
+            <div class="k">Answered with no LLM</div>
+            <div class="fig">38.5%</div>
+            <div class="cap">of all routing decisions.</div>
+          </div>
+          <div>
+            <div class="k">Accuracy on that path</div>
+            <div class="fig">100%</div>
+            <div class="cap">zero errors, held-out set.</div>
+          </div>
+        </div>
+        <figcaption style="margin-top:16px">Every routing error the system made came from the other path — the one that does call the model.</figcaption>
+      </div>
+    </div>
+
+    <!-- the method -->
+    <div class="two mt" style="margin-top:clamp(40px,5vw,64px)">
+      <div class="rv">
+        <h3 class="sub">The decision rule</h3>
+        <p class="sm">Calling the model on every sentence is slow and, measurably, where the mistakes live. So the router asks a cheaper question first: <em>is retrieval already sure?</em></p>
+        <ol class="steps mt-s">
+          <li><b>Embed and retrieve</b> the five nearest tools by cosine similarity.</li>
+          <li><b>Sharpen</b> those scores into a distribution — low-temperature softmax <code>T = 0.08</code>.</li>
+          <li><b>Measure confidence</b> as normalized Shannon entropy. Peaked means sure; flat means unsure.</li>
+          <li><b>Answer directly</b> below the threshold <code>H ≤ 0.45</code>, with no model call at all.</li>
+          <li><b>Defer</b> above it, and only then let the model re-rank the candidates.</li>
+        </ol>
+        <p class="sm mt-s">The threshold is a risk–coverage trade-off: push coverage up only while the accepted set stays clean.</p>
+      </div>
+      <div class="rv">
+        <div class="gate">
+          <div class="gate-top"><span class="live">● Live</span> <span>Try it — this is the actual rule</span></div>
+          <div class="gate-body">
+            <div class="gate-ctl">
+              <label for="gap">Drag: how far the best tool leads the runner-up</label>
+              <input type="range" id="gap" min="0" max="40" value="26" step="1"
+                     aria-label="Similarity gap between the top tool and the runner-up" />
+            </div>
+            <div class="bars" id="bars"></div>
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
+              <div class="blab">tool 1</div><div class="blab">tool 2</div><div class="blab">tool 3</div>
+              <div class="blab">tool 4</div><div class="blab">tool 5</div>
+            </div>
+            <div class="gate-out">
+              <div class="ro">Entropy<b id="hval">0.30</b></div>
+              <div class="ro">Threshold<b>0.45</b></div>
+              <div class="verdict fast" id="verdict">Answer directly</div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Slide left and the distribution flattens — the router stops trusting itself and hands over to the model.</figcaption>
+      </div>
+    </div>
+
+    <figure class="rv" style="margin-top:clamp(36px,4.5vw,56px)">
+      <div class="fighead">
+        <span class="fignum">Figure 2</span>
+        <h3>How the candidates are found</h3>
+        <p>Two rows. The top row is built <b>once, offline</b>: every tool's example phrasings become vectors in an index. The bottom row is what happens <b>during a call</b> — and the point is that both use the same model, so the vectors are comparable.</p>
+      </div>
+      <div class="exhibit">
+        <img src="assets/img/embedding.png" alt="Embedding and retrieval: tool examples are embedded once into a vector index; the caller sentence is embedded with the same model, then compared by cosine similarity to produce the top five candidate tools" />
+      </div>
+      <figcaption>The output of this stage — five ranked candidates — is what the confidence gate then judges.</figcaption>
+    </figure>
+
+    <figure class="rv" style="margin-top:clamp(36px,4.5vw,56px)">
+      <div class="fighead">
+        <span class="fignum">Figure 3</span>
+        <h3>Both paths, one router</h3>
+        <p>Follow a caller's sentence down the chart. It splits once — at the confidence check. <b>Brass answers immediately with no model call; navy hands the decision to the model.</b></p>
+      </div>
+      <div class="exhibit">
+        <img src="assets/img/routing.png" alt="Routing flowchart: embed the utterance, retrieve the top five tools, check entropy, then either answer directly or ask the language model" />
+      </div>
+      <figcaption>Only the navy branch spends a model call — and every routing error the system made came from that branch.</figcaption>
+    </figure>
+
+    <!-- evidence -->
+    <div class="two mt" style="margin-top:clamp(40px,5vw,64px)">
+      <div class="rv">
+        <h3 class="sub">The evidence</h3>
+        <p class="sm">65 utterances held out of the retrieval index, all 32 tools, majority vote over five runs at temperature 0.</p>
+        <div class="tw mt-s">
+          <table>
+            <thead><tr><th>Per decision</th><th class="fast">No-LLM path</th><th>Model path</th></tr></thead>
+            <tbody>
+              <tr><th>Share of traffic</th><td class="fast">38.5%</td><td>61.5%</td></tr>
+              <tr><th>Accuracy</th><td class="fast">100%</td><td>75%</td></tr>
+              <tr><th>Latency</th><td class="fast">~115 ms</td><td>~485 ms</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="sm mt-s">Overall recall@5 is 95.4% and top-1 84.6%. Retrieval alone would be 76.9% — so the gate's contribution is not finding candidates, it is knowing which ones to trust.</p>
+      </div>
+      <figure class="rv">
+        <div class="fighead">
+          <span class="fignum">Figure 4</span>
+          <h3>How often it picks the right tool</h3>
+          <p>Left: overall accuracy across the 65 held-out utterances. Right: the same measure split by caller role — which is where the weakness actually shows.</p>
+        </div>
+        <div class="exhibit">
+          <img src="assets/img/results.png" alt="Bar charts: recall@5 95.4% and top-1 84.6% overall; top-1 by role: appraiser 100%, lender 72.2%, borrower 58.3%" />
+        </div>
+        <figcaption>Clean phrasing 100%, messy phrasing 69.7%. Reported separately, because the average hides the hard case.</figcaption>
+      </figure>
+    </div>
+
+    <!-- how a call works -->
+    <div class="two lean mt" style="margin-top:clamp(40px,5vw,64px)">
+      <div class="rv">
+        <h3 class="sub">What happens during a call</h3>
+        <ul class="pts">
+          <li><b>Patience is tuned, not default.</b> Silero VAD waits long enough that a spoken street address — which has pauses in it — is not chopped into fragments.</li>
+          <li><b>The caller is known before they speak.</b> Identified from the number, then greeted by name.</li>
+          <li><b>Silence is designed away.</b> Fixed replies are pre-rendered to cached audio; short fillers cover slow database lookups.</li>
+          <li><b>Every order is scoped to the caller</b>, with ownership checked before anything is read out.</li>
+        </ul>
+      </div>
+      <figure class="rv">
+        <div class="fighead">
+          <span class="fignum">Figure 5</span>
+          <h3>One call, end to end</h3>
+        </div>
+        <div class="exhibit tall">
+          <img src="assets/img/voice-flow.png" alt="Five-stage flow of one voice call: setup and caller ID, listen, understand and route, act on live data, reply and speak" />
+        </div>
+        <figcaption>Roughly six sequential model calls per turn — which is exactly why skipping one is worth engineering for.</figcaption>
+      </figure>
+    </div>
+
+    <!-- recordings -->
+    <h3 class="sub rv" style="margin-top:clamp(44px,5vw,68px)">See it run</h3>
+    <div class="recs rv" style="margin-top:18px">
+      <div class="rc">
+        <div class="rc-top"><span class="rec"></span> Rec 01 · Inbound · 3:19</div>
+        <video controls preload="metadata" playsinline poster="assets/video/voice-call-demo.jpg">
+          <source src="assets/video/voice-call-demo.mp4" type="video/mp4" />
+        </video>
+        <div class="rc-body">
+          <h3>A caller, identified and answered live</h3>
+          <p>Recognized on connect from the number alone, greeted by name, then asked one natural question — routed, queried against live data, and read back aloud.</p>
+        </div>
+      </div>
+      <div class="rc">
+        <div class="rc-top"><span class="rec"></span> Rec 02 · Outbound · 2:36</div>
+        <video controls preload="metadata" playsinline poster="assets/video/voicemail-detect.jpg">
+          <source src="assets/video/voicemail-detect.mp4" type="video/mp4" />
+        </video>
+        <div class="rc-body">
+          <h3>Person, or voicemail? It decides, then acts</h3>
+          <p>The outbound call listens before it speaks. Hearing a machine, it leaves a complete message and hangs up; hearing a person, it opens the conversation instead.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="away rv">
+      <span class="lb">What this shows</span>
+      <p>A deterministic path is worth building even when a model could do the job — here it was simultaneously the fastest and the only error-free route.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════ CASES 03–05 · VISION ════════════════════════════ -->
+<section id="vision">
+  <div class="wrap">
+    <div class="sechead rv"><span class="secno">04</span><span class="secline"></span><span class="sectag">Case files 03–05</span></div>
+    <h2 class="rv">Before the language work, the platform had to read.</h2>
+    <p class="lead rv">Appraisers submit photographs, PDFs and signed reports. Three production systems check them.</p>
+
+    <div class="cards mt">
+      <div class="card rv">
+        <div class="k">Case 03 · In production</div>
+        <div class="fig">90–98%</div>
+        <h3>Document routing</h3>
+        <p>Sorts incoming appraisal documents into ~10 report types, trained on <b>~10,000 PDFs</b>.</p>
+        <p>Several report types share almost the same vocabulary and differ mainly in <em>structure</em> — table position, headers, signature blocks — so a layout-aware model beat text-only classification.</p>
+        <div class="tech">LayoutLMv3 · PaddleOCR</div>
+      </div>
+      <div class="card rv">
+        <div class="k">Case 04 · In production</div>
+        <div class="fig">54 classes</div>
+        <h3>Property image classification</h3>
+        <p>Checks that a report contains the required photo of every area an appraiser must inspect, and flags what is missing. <b>500,000+</b> training images, above 90% per class.</p>
+        <p>Kept accurate by a monthly loop: QC flags wrong predictions during normal review, I relabel and retrain.</p>
+        <div class="tech">YOLO (classification)</div>
+      </div>
+      <div class="card rv">
+        <div class="k">Case 05 · First production project</div>
+        <div class="fig">No detector</div>
+        <h3>Signature detection</h3>
+        <p>Validates that reports are actually signed — built before object-detection tooling was available to me.</p>
+        <p>I removed ruled lines morphologically, suppressed printed text using OCR boxes, then used FFT analysis to find the remaining irregular blobs. Rebuilt with YOLO once the tooling matured.</p>
+        <div class="tech">OpenCV · FFT · OCR · later YOLO</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ HOW I WORK ══════════════════════════════════════ -->
+<section class="alt" id="method">
+  <div class="wrap">
+    <div class="sechead rv"><span class="secno">05</span><span class="secline"></span><span class="sectag">How I work</span></div>
+    <h2 class="rv">A model is only as good as the loop around it.</h2>
+    <p class="lead rv">None of these were finished at launch. What keeps them accurate is a repeatable cycle — and a willingness to change the label definitions, not just the weights.</p>
+
+    <div class="two mt">
+      <div class="rv">
+        <ol class="steps">
+          <li><b>Frame it with the people who own it.</b> Requirements arrive from non-technical staff; my job is turning them into label definitions a model can follow.</li>
+          <li><b>Collect real errors, not synthetic ones.</b> The client's US QC team reviews output daily; their corrections become the next training set.</li>
+          <li><b>Rebalance before retraining.</b> Real data is skewed — downsample the majority, augment the minority, and check per class, not only in aggregate.</li>
+          <li><b>Change the rule when the edge case is right.</b> Sometimes the model is correct and the definition was wrong.</li>
+          <li><b>Report the ugly split too.</b> Clean input versus messy input, per class and per role — an average hides exactly what you need to fix.</li>
+        </ol>
+      </div>
+      <div class="rv">
+        <div class="card">
+          <div class="k">Delivery reality</div>
+          <h3>Models live inside someone else's application</h3>
+          <p>Every model ships as a Python service invoked by the company's PHP application under <code>www-data</code> — filesystem permissions, environment isolation, and clear error and exit-code contracts between two runtimes. Long jobs run under systemd.</p>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div class="k">Infrastructure</div>
+          <h3>I own the machines too</h3>
+          <p>Three Ubuntu GPU servers running all ML workloads — CUDA and driver setup, monitoring, fault diagnosis — plus MariaDB master–slave replication across three replicas, including resync after a replication break.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="away rv">
+      <span class="lb">Why it matters</span>
+      <p>Nothing here was handed to a platform team. Being the only engineer meant the evaluation loop had to be simple enough that I could actually keep running it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SPEC ════════════════════════════════════════════ -->
+<section id="spec">
+  <div class="wrap">
+    <div class="sechead rv"><span class="secno">06</span><span class="secline"></span><span class="sectag">Spec</span></div>
+    <h2 class="rv">The toolkit.</h2>
+    <div class="spec mt rv">
+      <div class="srow"><span class="sk">Languages</span><span class="sv">Python, SQL, Bash.</span></div>
+      <div class="srow"><span class="sk">LLM &amp; NLP</span><span class="sv">Prompt engineering (chain-of-thought, few-shot), embedding retrieval and intent routing, LangChain, LangGraph, Ollama; gpt-oss, Gemma, Qwen, nomic-embed.</span></div>
+      <div class="srow"><span class="sk">Vision &amp; OCR</span><span class="sv">YOLO (detection, segmentation, classification), LayoutLMv3, OpenCV, classical CV (FFT, morphology); PaddleOCR, EasyOCR, Tesseract.</span></div>
+      <div class="srow"><span class="sk">Speech</span><span class="sv">FasterWhisper, Kokoro, Silero VAD, LiveKit, Twilio Media Streams.</span></div>
+      <div class="srow"><span class="sk">Infrastructure</span><span class="sv">Ubuntu administration, NVIDIA GPU (CUDA, drivers, fault diagnosis), systemd, Apache, Docker (basic), Git.</span></div>
+      <div class="srow"><span class="sk">Databases</span><span class="sv">MariaDB / MySQL — master–slave replication, dump and restore, replica bootstrap and resync.</span></div>
+      <div class="srow"><span class="sk">Evaluation</span><span class="sv">Held-out sets, majority-vote scoring, per-class metrics, threshold tuning, error attribution.</span></div>
+      <div class="srow"><span class="sk">Education</span><span class="sv">BEng Software Engineering — Da Nang University of Science and Technology.</span></div>
+      <div class="srow"><span class="sk">Frameworks</span><span class="sv">FastAPI, Selenium, Poetry.</span></div>
+      <div class="srow"><span class="sk">Languages spoken</span><span class="sv">Vietnamese (native). English — daily working language with a US client since 2023.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ CONTACT ═════════════════════════════════════════ -->
+<section class="alt" id="contact">
+  <div class="wrap">
+    <div class="sechead rv"><span class="secno">07</span><span class="secline"></span><span class="sectag">Contact</span></div>
+    <h2 class="rv">Open to AI research and engineering roles.</h2>
+    <p class="lead rv">Happy to go as deep as you want on any of these — the methods, the evaluation, or the code.</p>
+    <p class="mt rv"><a class="big" href="mailto:hungthai3113@gmail.com">hungthai3113@gmail.com</a></p>
+    <div class="cgrid rv">
+      <div>
+        <span class="ck">Phone</span>
+        <a href="tel:+84935644649">+84 935 644 649</a>
+      </div>
+      <div>
+        <span class="ck">LinkedIn</span>
+        <a href="https://www.linkedin.com/in/hung-thai-876269293/" target="_blank" rel="noopener">in/hung-thai</a>
+      </div>
+      <div>
+        <span class="ck">Résumé</span>
+        <a href="assets/doc/Hung_Thai_AI_Engineer_CV.pdf" target="_blank" rel="noopener">Download PDF ↓</a>
+      </div>
+      <div>
+        <span class="ck">Based in</span>
+        <span class="cv">Da Nang, Vietnam · remote</span>
+      </div>
+    </div>
+    <footer>
+      <span>Thái Nam Hưng · AI Engineer · Da Nang, Vietnam</span>
+      <span>Available remote · working in English since 2023</span>
+    </footer>
+  </div>
+</section>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  /* progress + rail */
+  var bar=document.getElementById('bar'), pct=document.getElementById('pct'),
+      links=Array.prototype.slice.call(document.querySelectorAll('.rail a')),
+      secs=links.map(function(a){return document.querySelector(a.getAttribute('href'));});
+  function onScroll(){
+    var h=document.documentElement, max=h.scrollHeight-h.clientHeight,
+        p=max>0?Math.min(h.scrollTop/max,1):0;
+    bar.style.width=(p*100).toFixed(2)+'%';
+    if(pct) pct.textContent=String(Math.round(p*100)).padStart(3,'0')+'%';
+    var mid=h.scrollTop+h.clientHeight*0.35, cur=0;
+    for(var i=0;i<secs.length;i++){ if(secs[i]&&secs[i].offsetTop<=mid) cur=i; }
+    links.forEach(function(a,i){ a.classList.toggle('on', i===cur); });
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',onScroll); onScroll();
+
+  /* reveal */
+  var rvs=document.querySelectorAll('.rv');
+  if(!('IntersectionObserver' in window)){ rvs.forEach(function(e){e.classList.add('in');}); }
+  else{
+    var io=new IntersectionObserver(function(en){
+      en.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+    },{threshold:.08,rootMargin:'0px 0px -5% 0px'});
+    rvs.forEach(function(e){io.observe(e);});
+  }
+
+  /* email question chips */
+  var qg=document.getElementById('qgrid');
+  if(qg){
+    for(var i=1;i<=15;i++){
+      var s=document.createElement('span'); s.className='q';
+      s.textContent='Q'+String(i).padStart(2,'0'); qg.appendChild(s);
+    }
+    var chips=qg.querySelectorAll('.q'), picked=[0,2,3,6,7,10,13];
+    function light(){ chips.forEach(function(c,i){
+      setTimeout(function(){ c.classList.add(picked.indexOf(i)>-1?'on':'off'); }, reduce?0:i*45); }); }
+    if('IntersectionObserver' in window){
+      var io4=new IntersectionObserver(function(en){
+        en.forEach(function(e){ if(e.isIntersecting){ light(); io4.unobserve(e.target);} });
+      },{threshold:.4});
+      io4.observe(qg);
+    } else { light(); }
+  }
+
+  /* before / after bars */
+  var ba=document.getElementById('ba');
+  if(ba){
+    var bf=ba.querySelectorAll('.bafill');
+    bf.forEach(function(f){ f.style.transform='scaleX(0)'; });
+    function grow(){ bf.forEach(function(f,i){
+      var w=parseFloat(f.getAttribute('data-w'))/100;
+      setTimeout(function(){ f.style.transform='scaleX('+w+')'; }, reduce?0:i*220); }); }
+    if('IntersectionObserver' in window){
+      var io5=new IntersectionObserver(function(en){
+        en.forEach(function(e){ if(e.isIntersecting){ grow(); io5.unobserve(e.target);} });
+      },{threshold:.4});
+      io5.observe(ba);
+    } else { grow(); }
+  }
+
+  /* entropy gate — the real decision rule */
+  var T=0.08, BASE=[0,0.62,0.605,0.59,0.575], LN5=Math.log(5);
+  var barsEl=document.getElementById('bars'), gap=document.getElementById('gap'),
+      hval=document.getElementById('hval'), verdict=document.getElementById('verdict'), cols=[];
+  if(barsEl){
+    for(var j=0;j<5;j++){
+      var c=document.createElement('div'); c.className='bcol';
+      var v=document.createElement('div'); v.className='bval';
+      var f=document.createElement('div'); f.className='bfill';
+      c.appendChild(v); c.appendChild(f); barsEl.appendChild(c);
+      cols.push({col:c,val:v,fill:f});
+    }
+  }
+  function render(){
+    var g=parseFloat(gap.value)/100;
+    var s=[0.62+g, BASE[1], BASE[2], BASE[3], BASE[4]];
+    var e=s.map(function(x){return Math.exp(x/T);});
+    var Z=e.reduce(function(a,b){return a+b;},0);
+    var p=e.map(function(x){return x/Z;});
+    var H=-p.reduce(function(a,x){return a+(x>0?x*Math.log(x):0);},0)/LN5;
+    var top=p.indexOf(Math.max.apply(null,p));
+    cols.forEach(function(c,i){
+      var hp=Math.max(p[i]*82,1.5);
+      c.fill.style.height=hp+'%';
+      c.val.style.bottom='calc('+hp+'% + 6px)';
+      c.val.textContent=p[i].toFixed(2);
+      c.col.classList.toggle('top', i===top && H<=0.45);
+    });
+    hval.textContent=H.toFixed(2);
+    var fast=H<=0.45;
+    verdict.textContent=fast?'Answer directly':'Ask the model';
+    verdict.className='verdict '+(fast?'fast':'slow');
+  }
+  if(gap){ gap.addEventListener('input',render); render(); }
+
+  /* hero waveform */
+  var cv=document.getElementById('wave');
+  if(cv && !reduce){
+    var ctx=cv.getContext('2d'), w=0, h=0, dpr=Math.min(window.devicePixelRatio||1,2), t=0, raf;
+    function size(){ w=cv.clientWidth; h=cv.clientHeight; cv.width=w*dpr; cv.height=h*dpr;
+                     ctx.setTransform(dpr,0,0,dpr,0,0); }
+    size(); window.addEventListener('resize',size);
+    var L=[{a:.30,f:.0055,s:.0042,c:'rgba(224,169,74,.28)'},
+           {a:.20,f:.0090,s:.0065,c:'rgba(210,89,63,.18)'},
+           {a:.42,f:.0032,s:.0026,c:'rgba(150,175,210,.12)'}];
+    function draw(){
+      ctx.clearRect(0,0,w,h); t+=1;
+      L.forEach(function(ln,li){
+        ctx.beginPath();
+        for(var x=0;x<=w;x+=3){
+          var env=Math.sin((x/w)*Math.PI);
+          var y=h*0.62 + Math.sin(x*ln.f+t*ln.s)*h*0.10*ln.a*env
+                       + Math.sin(x*ln.f*2.7+t*ln.s*1.7+li)*h*0.05*ln.a*env;
+          x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+        }
+        ctx.strokeStyle=ln.c; ctx.lineWidth=1.25; ctx.stroke();
+      });
+      raf=requestAnimationFrame(draw);
+    }
+    draw();
+    document.addEventListener('visibilitychange',function(){
+      if(document.hidden){cancelAnimationFrame(raf);}else{draw();}
+    });
+  }
+})();
+</script>
+</body>
+</html>
