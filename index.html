@@ -260,6 +260,18 @@
     background:var(--brass);border:3px solid var(--panel);box-shadow:0 0 0 1px var(--brass);cursor:grab}
   input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--brass);
     border:3px solid var(--panel);box-shadow:0 0 0 1px var(--brass);cursor:grab}
+  /* until it has been touched, the handle breathes so people know it is draggable */
+  .gate.hinting input[type=range]::-webkit-slider-thumb{animation:thumbPulse 2s ease-out infinite}
+  .gate.hinting input[type=range]::-moz-range-thumb{animation:thumbPulse 2s ease-out infinite}
+  @keyframes thumbPulse{
+    0%  {box-shadow:0 0 0 1px var(--brass), 0 0 0 0 rgba(224,169,74,.5)}
+    70% {box-shadow:0 0 0 1px var(--brass), 0 0 0 15px rgba(224,169,74,0)}
+    100%{box-shadow:0 0 0 1px var(--brass), 0 0 0 0 rgba(224,169,74,0)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .gate.hinting input[type=range]::-webkit-slider-thumb{animation:none}
+    .gate.hinting input[type=range]::-moz-range-thumb{animation:none}
+  }
   .bars{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:end;height:150px;margin-top:26px}
   .bcol{position:relative;height:100%}
   .bfill{position:absolute;left:0;right:0;bottom:0;background:var(--hair-2);border-radius:2px 2px 0 0;
@@ -910,6 +922,48 @@
     verdict.className='verdict '+(fast?'fast':'slow');
   }
   if(gap){ gap.addEventListener('input',render); render(); }
+
+  /* When the gate scrolls into view, drive the slider once across the threshold so the
+     verdict visibly flips — that is what tells people the control is theirs to use.
+     Any real interaction cancels it immediately. */
+  var gateEl=document.querySelector('.gate');
+  if(gap && gateEl){
+    var demoDone=false, abort=false;
+    if(!reduce) gateEl.classList.add('hinting');
+
+    function stopHint(){ abort=true; gateEl.classList.remove('hinting'); }
+    ['pointerdown','mousedown','touchstart','keydown','input'].forEach(function(ev){
+      gap.addEventListener(ev, stopHint, {passive:true});
+    });
+
+    function tweenTo(from,to,dur,done){
+      var t0=null;
+      function step(ts){
+        if(abort){ done(); return; }
+        if(!t0) t0=ts;
+        var p=Math.min((ts-t0)/dur,1);
+        var e=p<0.5 ? 2*p*p : 1-Math.pow(-2*p+2,2)/2;      // ease in-out
+        gap.value=Math.round(from+(to-from)*e); render();
+        if(p<1) requestAnimationFrame(step); else done();
+      }
+      requestAnimationFrame(step);
+    }
+    function runDemo(){
+      if(demoDone||reduce) return; demoDone=true;
+      var steps=[[26,6,850],[6,6,500],[6,34,1050],[34,34,450],[34,26,600]];  // [from,to,ms]
+      var i=0;
+      (function next(){
+        if(abort||i>=steps.length){ gateEl.classList.remove('hinting'); return; }
+        var s=steps[i++]; tweenTo(s[0],s[1],s[2],next);
+      })();
+    }
+    if('IntersectionObserver' in window){
+      var io6=new IntersectionObserver(function(en){
+        en.forEach(function(e){ if(e.isIntersecting){ io6.unobserve(e.target); setTimeout(runDemo,450); } });
+      },{threshold:.55});
+      io6.observe(gateEl);
+    }
+  }
 
   /* hero waveform */
   var cv=document.getElementById('wave');
