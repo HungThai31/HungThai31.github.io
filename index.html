@@ -289,11 +289,12 @@
   }
   .bars{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:end;height:150px;margin-top:26px}
   .bcol{position:relative;height:100%}
-  .bfill{position:absolute;left:0;right:0;bottom:0;background:var(--hair-2);border-radius:2px 2px 0 0;
-         transition:height .18s linear,background .3s}
+  .bfill{position:absolute;left:0;right:0;bottom:0;height:100%;background:var(--hair-2);
+         border-radius:2px 2px 0 0;transform-origin:bottom;transform:scaleY(.02);
+         transition:background .3s;will-change:transform}
   .bcol.top .bfill{background:var(--brass)}
-  .bval{position:absolute;left:0;right:0;text-align:center;font-family:var(--mono);font-size:11.5px;
-        color:var(--body);font-variant-numeric:tabular-nums;transition:bottom .18s linear}
+  .bval{position:absolute;left:0;right:0;bottom:0;text-align:center;font-family:var(--mono);font-size:11.5px;
+        color:var(--body);font-variant-numeric:tabular-nums;will-change:transform}
   .blab{font-family:var(--mono);font-size:10px;color:var(--dimmer);text-align:center;
         padding-top:9px;border-top:1px solid var(--hair);margin-top:10px}
   .gate-out{display:flex;flex-wrap:wrap;align-items:center;gap:16px 26px;margin-top:22px;padding-top:20px;
@@ -590,7 +591,7 @@
           <div class="gate-body">
             <div class="gate-ctl">
               <label for="gap">Drag: how far the best tool leads the runner-up</label>
-              <input type="range" id="gap" min="0" max="40" value="26" step="1"
+              <input type="range" id="gap" min="0" max="40" value="26" step="any"
                      aria-label="Similarity gap between the top tool and the runner-up" />
             </div>
             <div class="bars" id="bars"></div>
@@ -927,8 +928,9 @@
       cols.push({col:c,val:v,fill:f});
     }
   }
-  function render(){
-    var g=parseFloat(gap.value)/100;
+  var BARS_H=150;                      // must match .bars{height} in the CSS
+  function render(gv){
+    var g=gv/100;
     var s=[0.62+g, BASE[1], BASE[2], BASE[3], BASE[4]];
     var e=s.map(function(x){return Math.exp(x/T);});
     var Z=e.reduce(function(a,b){return a+b;},0);
@@ -936,9 +938,9 @@
     var H=-p.reduce(function(a,x){return a+(x>0?x*Math.log(x):0);},0)/LN5;
     var top=p.indexOf(Math.max.apply(null,p));
     cols.forEach(function(c,i){
-      var hp=Math.max(p[i]*82,1.5);
-      c.fill.style.height=hp+'%';
-      c.val.style.bottom='calc('+hp+'% + 6px)';
+      var f=Math.min(Math.max(p[i]*0.82,0.015),1);
+      c.fill.style.transform='scaleY('+f.toFixed(4)+')';
+      c.val.style.transform='translateY('+(-(f*BARS_H+7)).toFixed(1)+'px)';
       c.val.textContent=p[i].toFixed(2);
       c.col.classList.toggle('top', i===top && H<=0.45);
     });
@@ -947,7 +949,17 @@
     verdict.textContent=fast?'Answer directly':'Ask the model';
     verdict.className='verdict '+(fast?'fast':'slow');
   }
-  if(gap){ gap.addEventListener('input',render); render(); }
+  /* displayed value chases the real value every frame — no CSS transitions to
+     restart, so dragging and the auto-demo are equally smooth */
+  var disp=gap?parseFloat(gap.value):26, chase=0;
+  function tick(){
+    var t=parseFloat(gap.value);
+    disp+=(t-disp)*(reduce?1:0.22);
+    if(Math.abs(t-disp)<0.02){ disp=t; render(disp); chase=0; return; }
+    render(disp); chase=requestAnimationFrame(tick);
+  }
+  function kick(){ if(!chase) chase=requestAnimationFrame(tick); }
+  if(gap){ gap.addEventListener('input',kick); render(disp); }
 
   /* When the gate scrolls into view, drive the slider once across the threshold so the
      verdict visibly flips — that is what tells people the control is theirs to use.
@@ -969,7 +981,7 @@
         if(!t0) t0=ts;
         var p=Math.min((ts-t0)/dur,1);
         var e=p<0.5 ? 2*p*p : 1-Math.pow(-2*p+2,2)/2;      // ease in-out
-        gap.value=Math.round(from+(to-from)*e); render();
+        gap.value=from+(to-from)*e; kick();
         if(p<1) requestAnimationFrame(step); else done();
       }
       requestAnimationFrame(step);
