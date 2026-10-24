@@ -36,7 +36,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* type */
 .d{font-family:var(--disp);font-variation-settings:'wdth' 80,'wght' 850;text-transform:uppercase;letter-spacing:-.02em;line-height:.92;color:var(--ink)}
 h1,h2,h3{font-weight:inherit}
-.d-xl{font-size:clamp(48px,7.6vw,122px)}
+.d-xl{font-size:clamp(46px,7.1vw,116px)}
 .d-l{font-size:clamp(40px,6vw,96px)}
 .d-m{font-size:clamp(28px,3.4vw,52px)}
 .d-s{font-size:clamp(22px,2.2vw,32px)}
@@ -81,7 +81,7 @@ code{font-family:var(--mono);font-size:.9em;color:var(--acc2)}
 .hero-static{position:absolute;right:4%;top:46%;width:min(44vw,600px);transform:translateY(-50%);opacity:.9;z-index:0;display:none;filter:grayscale(1);mask-image:radial-gradient(circle at center,#000 52%,transparent 72%);-webkit-mask-image:radial-gradient(circle at center,#000 52%,transparent 72%)}
 .hero.static .hero-static{display:block}
 .hero .wrap{position:relative;z-index:2;padding-bottom:7vh}
-.hero h1{max-width:14.5ch}
+.hero h1{max-width:17ch}
 .hero .row{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:28px 48px;align-items:end;margin-top:34px}
 .hero .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
 .hero .meta{display:grid;gap:10px;font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;color:var(--mute);justify-self:end;text-align:right}
@@ -651,7 +651,7 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
       gl_Position=projectionMatrix*modelViewMatrix*vec4(p,0.0,1.0);gl_PointSize=uPx*(1.1+2.4*aL)*(1.0+rep*0.7)*(0.75+0.5*fract(aN.z*9.7));}`,
     fragmentShader:`varying float vA;varying vec3 vC;void main(){float d=length(gl_PointCoord-0.5);float a=smoothstep(0.5,0.08,d)*vA;if(a<0.004)discard;gl_FragColor=vec4(vC,a);}`});
   const scene=new THREE.Scene(),cam=new THREE.OrthographicCamera(-1,1,1,-1,-10,10);scene.add(new THREE.Points(geo,mat));
-  function size(){const w=cv.clientWidth,h=cv.clientHeight;renderer.setSize(w,h,false);cam.left=-w/2;cam.right=w/2;cam.top=h/2;cam.bottom=-h/2;cam.updateProjectionMatrix();U.uHalf.value.set(w/2,h/2);const mob=w<961;U.uScale.value=mob?Math.min(w*1.05,h*0.6):Math.min(h*0.9,w*0.46);U.uOffset.value.set(mob?w*0.34:w*0.27,mob?h*0.14:h*0.06);}
+  function size(){const w=cv.clientWidth,h=cv.clientHeight;renderer.setSize(w,h,false);cam.left=-w/2;cam.right=w/2;cam.top=h/2;cam.bottom=-h/2;cam.updateProjectionMatrix();U.uHalf.value.set(w/2,h/2);const mob=w<961;U.uScale.value=mob?Math.min(w*1.05,h*0.6):Math.min(h*0.9,w*0.46);U.uOffset.value.set(mob?w*0.34:w*0.31,mob?h*0.14:h*0.04);}
   size();addEventListener('resize',size);
   const target=new THREE.Vector2(1e5,1e5);const toWorld=(cx,cy)=>{const r=cv.getBoundingClientRect();if(cy<r.top||cy>r.bottom){target.set(1e5,1e5);return;}target.set(cx-r.left-r.width/2,-(cy-r.top-r.height/2));};
   addEventListener('pointermove',e=>toWorld(e.clientX,e.clientY),{passive:true});addEventListener('touchmove',e=>{const t=e.touches[0];if(t)toWorld(t.clientX,t.clientY);},{passive:true});addEventListener('pointerleave',()=>target.set(1e5,1e5));
