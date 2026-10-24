@@ -100,6 +100,7 @@ code{font-family:var(--mono);font-size:.9em;color:var(--acc2)}
 /* sections */
 section{position:relative;padding:var(--sec) 0}
 section.alt{background:var(--bg2)}
+#work{overflow:hidden}
 .head{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px 64px;align-items:end;margin-bottom:clamp(48px,6vw,88px)}
 .head .eyebrow{display:block;margin-bottom:18px}
 @media(max-width:860px){.head{grid-template-columns:1fr}}
@@ -266,6 +267,29 @@ footer{overflow:hidden;padding:clamp(40px,5vw,72px) 0 28px;border-top:1px solid 
 @keyframes sheen{to{background-position:-120% 0}}
 footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-between;margin-top:28px;font-family:var(--mono);font-size:12px;color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
 
+/* chapter motion */
+.chap{position:relative;border-top:0}
+.chap .rt{position:absolute;left:0;top:0;height:1px;width:100%;background:var(--line2);transform-origin:left;transform:scaleX(0)}
+.chap:first-of-type .rt{display:none}
+.chap .wm{position:absolute;right:-1vw;top:clamp(20px,3vw,48px);font-family:var(--disp);font-variation-settings:'wdth' 76,'wght' 900;font-size:clamp(120px,24vw,420px);line-height:1;color:transparent;-webkit-text-stroke:1px rgba(244,242,236,.07);pointer-events:none;z-index:0;user-select:none}
+.chap>*:not(.wm):not(.rt){position:relative;z-index:1}
+.result .num{cursor:default;will-change:transform}
+.result .num.hot{text-shadow:0 0 40px rgba(61,107,255,.45)}
+.bar .fl.k{overflow:hidden}
+.bar .fl.k::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-120%);animation:sheen2 3.2s var(--ease) infinite}
+@keyframes sheen2{to{transform:translateX(120%)}}
+.bar .lab b{display:inline-block;transition:transform .25s var(--ease),color .25s;transform-origin:right}
+.bar:hover .lab b{transform:scale(1.12);color:var(--acc2)}
+.bar:hover .fl{filter:brightness(1.3)}
+.vis>*{transform-style:preserve-3d;will-change:transform}
+.steps5 div{transition:background .35s}
+.steps5 div i,.steps5 div b{transition:color .35s}
+.steps5 div:not(.on) i{color:var(--mute)}.steps5 div:not(.on) b{color:var(--ink2)}
+.steps5 div.on{background:#131822}
+.ill .pop{transform-box:fill-box;transform-origin:center}
+.vs div{transition:background .3s}
+.vs div:hover{background:#141922}
+
 .rv{will-change:transform,opacity}
 .lines-mask .line{overflow:hidden;display:block}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.giant{background-position:0 0}}
@@ -327,7 +351,7 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
   <!-- 01 -->
   <article class="chap" id="c01">
     <div class="kick rv"><b>01</b><span>Email triage</span><span class="tag live">In production</span><span>US appraisal management company · 2023–2026</span></div>
-    <div class="result"><div class="num rv" data-count="95" data-suffix="%">0%</div><p class="what rv">of 700–1,300 daily emails handled without a person reading them. Up from 50–60%.</p></div>
+    <div class="result"><div class="num rv" data-count="95" data-suffix="%">0%</div><p class="what split">of 700–1,300 daily emails handled without a person reading them. Up from 50–60%.</p></div>
     <div class="grid">
       <div>
         <div class="story rv">
@@ -357,7 +381,7 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
   <!-- 02 -->
   <article class="chap" id="c02">
     <div class="kick rv"><b>02</b><span>Voice &amp; text agent</span><span class="tag proto">Working prototype</span><span>Built solo · one GPU · no cloud</span></div>
-    <div class="result"><div class="num sm rv">~115 ms</div><p class="what rv">to answer a routine request with no model call at all. Zero routing errors on that path.</p></div>
+    <div class="result"><div class="num sm rv">~115 ms</div><p class="what split">to answer a routine request with no model call at all. Zero routing errors on that path.</p></div>
     <div class="grid">
       <div>
         <div class="story rv">
@@ -390,7 +414,7 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
         </div></details>
       </div>
       <div class="vis rv">
-        <div class="vs"><div><div class="h k">No-model path</div><div class="v k">38.5%</div><div class="l">of traffic</div></div><div><div class="h">Model path</div><div class="v">61.5%</div><div class="l">of traffic</div></div><div><div class="h k">Accuracy</div><div class="v k">100%</div><div class="l">0 errors</div></div><div><div class="h">Accuracy</div><div class="v">75%</div><div class="l">every error lives here</div></div><div><div class="h k">Latency</div><div class="v k">~115 ms</div><div class="l">per decision</div></div><div><div class="h">Latency</div><div class="v">~485 ms</div><div class="l">per decision</div></div></div>
+        <div class="vs"><div><div class="h k">No-model path</div><div class="v k" data-count="38.5" data-dec="1" data-suffix="%">0%</div><div class="l">of traffic</div></div><div><div class="h">Model path</div><div class="v" data-count="61.5" data-dec="1" data-suffix="%">0%</div><div class="l">of traffic</div></div><div><div class="h k">Accuracy</div><div class="v k" data-count="100" data-suffix="%">0%</div><div class="l">0 errors</div></div><div><div class="h">Accuracy</div><div class="v" data-count="75" data-suffix="%">0%</div><div class="l">every error lives here</div></div><div><div class="h k">Latency</div><div class="v k" data-count="115" data-prefix="~" data-suffix=" ms">~0 ms</div><div class="l">per decision</div></div><div><div class="h">Latency</div><div class="v" data-count="485" data-prefix="~" data-suffix=" ms">~0 ms</div><div class="l">per decision</div></div></div>
         <div class="steps5"><div><i>01</i><b>Identify</b><span>caller from phone number, greet by name</span></div><div><i>02</i><b>Listen</b><span>VAD + Whisper, tuned for addresses</span></div><div><i>03</i><b>Route</b><span>retrieve, then entropy gate</span></div><div><i>04</i><b>Act</b><span>caller-scoped DB lookup</span></div><div><i>05</i><b>Speak</b><span>cached audio or live TTS</span></div></div>
         <div class="vid2">
           <div class="vid"><video controls preload="metadata" playsinline poster="assets/video/voice-call-demo.jpg" aria-label="Inbound call demo, 3 minutes 19 seconds. Personal details in the audio are muted."><source src="assets/video/voice-call-demo.mp4" type="video/mp4" /></video><div class="cap">Inbound · 3:19 · personal details muted</div></div>
@@ -403,7 +427,7 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
   <!-- 03 -->
   <article class="chap" id="c03">
     <div class="kick rv"><b>03</b><span>Document routing</span><span class="tag live">In production</span><span>~10 report types</span></div>
-    <div class="result"><div class="num sm rv">90–98%</div><p class="what rv">accuracy per class. Every incoming report lands in the right review queue by itself.</p></div>
+    <div class="result"><div class="num sm rv">90–98%</div><p class="what split">accuracy per class. Every incoming report lands in the right review queue by itself.</p></div>
     <div class="grid">
       <div>
         <div class="story rv">
@@ -423,7 +447,7 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
   <!-- 04 -->
   <article class="chap" id="c04">
     <div class="kick rv"><b>04</b><span>Property photo check</span><span class="tag live">In production</span><span>500,000+ training images</span></div>
-    <div class="result"><div class="num rv" data-count="54">0</div><p class="what rv">photo classes checked on every report, each above 90% accuracy, before a human looks.</p></div>
+    <div class="result"><div class="num rv" data-count="54">0</div><p class="what split">photo classes checked on every report, each above 90% accuracy, before a human looks.</p></div>
     <div class="grid">
       <div>
         <div class="story rv">
@@ -441,7 +465,7 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
   <!-- 05 -->
   <article class="chap" id="c05">
     <div class="kick rv"><b>05</b><span>Signature detection</span><span class="tag live">In production</span><span>First production project</span></div>
-    <div class="result"><div class="num word rv">Caught at intake</div><p class="what rv">Unsigned reports are stopped before they move downstream, instead of bouncing back later.</p></div>
+    <div class="result"><div class="num word rv">Caught at intake</div><p class="what split">Unsigned reports are stopped before they move downstream, instead of bouncing back later.</p></div>
     <div class="grid">
       <div>
         <div class="story rv">
@@ -460,7 +484,7 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
   <!-- 06 -->
   <article class="chap" id="c06">
     <div class="kick rv"><b>06</b><span>Landing page</span><span class="tag">Design + build</span><span>Vessel Subnet · 2026</span></div>
-    <div class="result"><div class="num word rv">Design + build</div><p class="what rv">A landing page for a barge-coordination platform, written in the language of the trade.</p></div>
+    <div class="result"><div class="num word rv">Design + build</div><p class="what split">A landing page for a barge-coordination platform, written in the language of the trade.</p></div>
     <div class="grid">
       <div>
         <div class="story rv">
@@ -600,23 +624,68 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
   /* reveals */
   gsap.utils.toArray('.rv').forEach(function(el){gsap.fromTo(el,{opacity:0,y:18},{opacity:1,y:0,duration:0.7,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 90%',once:true}});});
   /* bars */
-  gsap.utils.toArray('.bar .fl').forEach(function(f){var w=parseFloat(f.getAttribute('data-w'))/100;gsap.to(f,{scaleX:w,duration:1.2,ease:'power3.out',scrollTrigger:{trigger:f,start:'top 92%',once:true}});});
+  gsap.utils.toArray('.bar .fl').forEach(function(f){var w=parseFloat(f.getAttribute('data-w'))/100;gsap.to(f,{scaleX:w,ease:'none',scrollTrigger:{trigger:f,start:'top 96%',end:'top 58%',scrub:0.5}});});
   /* counters */
-  document.querySelectorAll('[data-count]').forEach(function(el){var end=parseFloat(el.getAttribute('data-count')),suf=el.getAttribute('data-suffix')||'',o={v:0};gsap.to(o,{v:end,duration:1.8,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%',once:true},onUpdate:function(){el.textContent=Math.round(o.v).toLocaleString('en-US')+suf;}});});
+  function countUp(el,dur){var end=parseFloat(el.getAttribute('data-count')),suf=el.getAttribute('data-suffix')||'',pre=el.getAttribute('data-prefix')||'',dec=parseInt(el.getAttribute('data-dec')||'0'),o={v:0};
+    return gsap.to(o,{v:end,duration:dur||1.8,ease:'power3.out',onUpdate:function(){el.textContent=pre+(dec?o.v.toFixed(dec):Math.round(o.v).toLocaleString('en-US'))+suf;}});}
+  document.querySelectorAll('[data-count]').forEach(function(el){ScrollTrigger.create({trigger:el,start:'top 88%',once:true,onEnter:function(){countUp(el);}});
+    el.addEventListener('pointerenter',function(){countUp(el,0.8);});});
   /* display headlines: masked line reveal */
-  document.fonts.ready.then(function(){
+  /* Positions are measured once at creation; the Statement pin spacer and the
+     late-arriving display font both move everything below. Re-measure after
+     each of those, not just once. */
+  var splitDone=false;
+  function doSplit(){ if(splitDone) return; splitDone=true;
     document.querySelectorAll('.split').forEach(function(h){
       var sp=new SplitText(h,{type:'lines',mask:'lines'});
       gsap.from(sp.lines,{yPercent:108,duration:1.1,stagger:0.08,ease:'expo.out',scrollTrigger:{trigger:h,start:'top 88%',once:true}});
     });
-    ScrollTrigger.refresh();
+    ScrollTrigger.sort(); ScrollTrigger.refresh(); }
+  document.fonts.load("900 40px 'Archivo'").then(doSplit, doSplit);
+  setTimeout(doSplit, 2500);
+  document.fonts.addEventListener && document.fonts.addEventListener('loadingdone', function(){ ScrollTrigger.refresh(); });
+  addEventListener('load', function(){ setTimeout(function(){ ScrollTrigger.refresh(); }, 250); });
+
+  /* chapters: rule, watermark, parallax, tilt, stagger, drawing SVGs, steps */
+  gsap.utils.toArray('.chap').forEach(function(ch,i){
+    var rt=document.createElement('i');rt.className='rt';ch.prepend(rt);
+    var wm=document.createElement('div');wm.className='wm';wm.setAttribute('aria-hidden','true');wm.textContent='0'+(i+1);ch.prepend(wm);
+    gsap.to(rt,{scaleX:1,duration:1.1,ease:'expo.out',scrollTrigger:{trigger:ch,start:'top 85%',once:true}});
+    gsap.fromTo(wm,{yPercent:18},{yPercent:-18,ease:'none',scrollTrigger:{trigger:ch,start:'top bottom',end:'bottom top',scrub:true}});
+    var num=ch.querySelector('.result .num');
+    if(num){gsap.fromTo(num,{y:28},{y:-28,ease:'none',scrollTrigger:{trigger:ch,start:'top bottom',end:'bottom top',scrub:0.6}});
+      num.addEventListener('pointerenter',function(){num.classList.add('hot');gsap.fromTo(num,{skewX:-6},{skewX:0,duration:.6,ease:'expo.out'});});
+      num.addEventListener('pointerleave',function(){num.classList.remove('hot');});}
+    var vis=ch.querySelector('.vis');
+    if(vis){gsap.fromTo(vis,{y:40},{y:-40,ease:'none',scrollTrigger:{trigger:ch,start:'top bottom',end:'bottom top',scrub:0.8}});
+      if(fine){var box=vis.firstElementChild;vis.addEventListener('pointermove',function(e){var r=vis.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-0.5,y=(e.clientY-r.top)/r.height-0.5;gsap.to(vis.children,{rotateY:x*6,rotateX:-y*6,duration:.6,ease:'power2.out',transformPerspective:900});});
+        vis.addEventListener('pointerleave',function(){gsap.to(vis.children,{rotateY:0,rotateX:0,duration:.9,ease:'expo.out'});});}}
+    var ps=ch.querySelectorAll('.story p'); if(ps.length) gsap.from(ps,{opacity:0,y:14,duration:.6,stagger:.12,ease:'power2.out',scrollTrigger:{trigger:ps[0],start:'top 88%',once:true}});
+    var chips=ch.querySelectorAll('.chip'); if(chips.length) gsap.from(chips,{opacity:0,scale:.85,duration:.5,stagger:.07,ease:'back.out(2)',scrollTrigger:{trigger:chips[0],start:'top 92%',once:true}});
+    var kick=ch.querySelectorAll('.kick > *'); if(kick.length) gsap.from(kick,{opacity:0,x:-10,duration:.5,stagger:.06,ease:'power2.out',scrollTrigger:{trigger:ch,start:'top 85%',once:true}});
   });
+  /* SVG illustrations draw themselves */
+  document.querySelectorAll('.ill').forEach(function(svg){
+    var paths=svg.querySelectorAll('path[d]'),rects=svg.querySelectorAll('rect'),texts=svg.querySelectorAll('text');
+    paths.forEach(function(pth){pth.setAttribute('pathLength','1');pth.style.strokeDasharray='1';pth.style.strokeDashoffset='1';});
+    rects.forEach(function(r){r.classList.add('pop');});
+    var tl=gsap.timeline({scrollTrigger:{trigger:svg,start:'top 82%',once:true}});
+    tl.from(rects,{scale:0,opacity:0,duration:.5,stagger:{each:.025,from:'start'},ease:'back.out(1.6)'},0)
+      .to(paths,{strokeDashoffset:0,duration:1.1,stagger:.05,ease:'power2.inOut'},.2)
+      .from(texts,{opacity:0,y:6,duration:.5,stagger:.05},.6);
+  });
+  /* five-step strip lights in sequence with scroll */
+  document.querySelectorAll('.steps5').forEach(function(st){var cells=st.children;
+    ScrollTrigger.create({trigger:st,start:'top 85%',end:'top 35%',scrub:0.4,onUpdate:function(s){var n=Math.ceil(s.progress*cells.length);for(var i=0;i<cells.length;i++)cells[i].classList.toggle('on',i<n);},onLeave:function(){for(var i=0;i<cells.length;i++)cells[i].classList.add('on');}});});
   /* statement scrub */
   var big=document.getElementById('big');
   big.innerHTML=big.innerHTML.replace(/<span class="k">([\s\S]*?)<\/span>/,function(_,t){return t.split(/\s+/).map(function(w){return '<span class="w k">'+w+'</span>';}).join(' ');}).replace(/(^|>)([^<]+)(?=<|$)/g,function(_,pre,t){return pre+t.split(/(\s+)/).map(function(w){return /\S/.test(w)?'<span class="w">'+w+'</span>':w;}).join('');});
   var ws=big.querySelectorAll('.w');
   gsap.matchMedia().add({desk:'(min-width:961px)',mob:'(max-width:960px)'},function(ctx){var desk=ctx.conditions.desk;
     ScrollTrigger.create({trigger:'#statement',start:desk?'top 15%':'top 70%',end:desk?'+=110%':'bottom 60%',pin:desk,scrub:0.6,onUpdate:function(s){var n=Math.round(s.progress*ws.length);ws.forEach(function(w,i){w.classList.toggle('on',i<n);});},onLeave:function(){ws.forEach(function(w){w.classList.add('on');});}});});
+  /* the pin above is created last; refresh order must follow page order or
+     everything below it measures 990px too early */
+  ScrollTrigger.sort(); ScrollTrigger.refresh();
 })();
 </script>
 
