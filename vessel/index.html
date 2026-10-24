@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vessel Subnet · Điều phối sà lan chuyển tải</title>
+<meta name="description" content="Tìm sà lan cho tàu mẹ, trước khi hết hạn dỡ. Đăng yêu cầu, nhận báo giá kín, theo dõi từng chuyến đến khi dỡ xong.">
+<meta name="theme-color" content="#050505">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script>
+  (function (d) {
+    var r = d.documentElement; r.classList.add('js');
+    try { var l = localStorage.getItem('vs-lang'); if (l === 'en') r.setAttribute('data-lang-init', 'en'); } catch (e) {}
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      r.classList.add('motion-ok'); r.classList.add('is-booting');
+      setTimeout(function () { if (!window.__vsReady) r.classList.remove('motion-ok'); }, 2500);
+    }
+  })(document);
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:ital,wght@0,200;0,300;1,300&family=Be+Vietnam+Pro:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="css/styles.css?v=27">
+</head>
+<body>
+<a class="skip" href="#main" data-i18n="skip">Chuyển đến nội dung chính</a>
+
+<!-- Màn chờ: chỉ hiện khi có JS và cho phép chuyển động; tự tan sau 7 s nếu JS không gỡ -->
+<div class="boot" id="boot" aria-hidden="true">
+  <div class="boot-in">
+    <span class="boot-mark">Vessel Subnet</span>
+    <i class="boot-bar"><b id="bootBar"></b></i>
+    <span class="boot-lbl" data-i18n="bootLbl">Đang tải hải đồ</span>
+  </div>
+</div>
+
+<!-- ───────── Header ───────── -->
+<header class="hdr" id="hdr">
+  <div class="hdr-in">
+    <nav class="hdr-nav" aria-label="Điều hướng chính" data-i18n-attr="aria-label:navMain">
+      <a href="#van-de" data-i18n="nav1">Vấn đề</a><a href="#cach-van-hanh" data-i18n="nav2">Cách làm</a><a href="#mang-luoi" data-i18n="nav3">Mạng lưới</a><a href="#chu-sa-lan" data-i18n="nav4">Chủ sà lan</a>
+    </nav>
+    <a class="brand" href="#top" aria-label="Vessel Subnet">
+      <svg class="glyph" width="24" height="24" viewBox="0 0 30 30" aria-hidden="true"><circle class="glyph-ring" cx="15" cy="15" r="9" fill="none" stroke="currentColor" stroke-width="1.3" stroke-dasharray="2.4 3" opacity=".7"/><circle cx="15" cy="15" r="3.4" fill="currentColor"/><path d="M15 2v5M15 23v5M2 15h5M23 15h5" stroke="currentColor" stroke-width="1.3" opacity=".7"/></svg>
+      <span>Vessel Subnet</span>
+    </a>
+    <div class="hdr-act">
+      <div class="lang" role="group" aria-label="Ngôn ngữ" data-i18n-attr="aria-label:lang">
+        <button type="button" data-lang="vi" aria-pressed="true">VI</button><button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <a class="btn btn-sm" href="#bat-dau" data-i18n="navCta">Gửi yêu cầu</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mnav"><span class="menu-ico" aria-hidden="true"></span><span class="sr" data-i18n="menuOpen">Mở menu</span></button>
+    </div>
+  </div>
+  <nav class="mnav" id="mnav" aria-label="Điều hướng trên di động" data-i18n-attr="aria-label:navMobile" hidden>
+    <a href="#van-de" data-i18n="nav1">Vấn đề</a><a href="#cach-van-hanh" data-i18n="nav2">Cách làm</a><a href="#mang-luoi" data-i18n="nav3">Mạng lưới</a><a href="#chu-sa-lan" data-i18n="nav4">Chủ sà lan</a><a href="#nguyen-tac" data-i18n="nav5">Cam kết</a><a href="#bat-dau" data-i18n="navCta">Gửi yêu cầu</a>
+  </nav>
+</header>
+
+<main id="main">
+
+<!-- ───────── Hero (tối) ───────── -->
+<section class="hero tone-dark" id="top">
+  <div class="scene" aria-hidden="true">
+    <div class="plane" id="heroPlane">
+      <svg viewBox="0 0 1600 1000" id="heroChart" focusable="false">
+<defs>
+  <path id="hc" pathLength="1" d="M-20 420C120 400 220 330 340 350C460 370 520 300 640 300C720 300 760 340 800 356C860 380 900 330 1000 320C1120 308 1180 360 1300 340C1400 324 1500 280 1620 300"/>
+  <pattern id="hh" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="9" stroke="rgba(243,242,239,.09)" stroke-width="1"/></pattern>
+  <pattern id="stip" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".55" fill="rgba(243,242,239,.22)"/><circle cx="5.5" cy="5.5" r=".45" fill="rgba(243,242,239,.14)"/></pattern>
+  <linearGradient id="sweepG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".16"/></linearGradient>
+  <!-- Sà lan boong hở (mũi hướng +x, dài 64, rộng 16) -->
+  <g id="barge-sym">
+    <path class="hb" d="M-32-8H22Q31-8 34 0Q31 8 22 8H-32Q-35 0-32-8Z"/>
+    <rect class="hold" x="-18" y="-5" width="36" height="10" rx=".6"/>
+    <path class="hold-i" d="M-16-3.2H16M-16 3.2H16"/>
+    <rect class="wh" x="-29" y="-3.6" width="7" height="7.2" rx=".6"/>
+    <path class="hl" d="M34 0H46"/>
+  </g>
+  <!-- Tàu hàng rời (mũi hướng +x, dài 152, rộng 26) -->
+  <g id="ship-sym">
+    <path class="sh-hull" pathLength="1" d="M-75-11H38C60-11 72-5 78 0C72 5 60 11 38 11H-75C-79 7-79-7-75-11Z"/>
+    <path class="sh-dk" d="M-72-8.4H42C53-8.4 63-4 68.5 0C63 4 53 8.4 42 8.4H-72"/>
+    <path class="sh-cl" d="M-70 0H70"/>
+    <path class="sh-fr" d="M-70-11v1.8M-70 11v-1.8M-60-11v1.8M-60 11v-1.8M-50-11v1.8M-50 11v-1.8M-40-11v1.8M-40 11v-1.8M-30-11v1.8M-30 11v-1.8M-20-11v1.8M-20 11v-1.8M-10-11v1.8M-10 11v-1.8M0-11v1.8M0 11v-1.8M10-11v1.8M10 11v-1.8M20-11v1.8M20 11v-1.8M30-11v1.8M30 11v-1.8M40-11v1.8M40 11v-1.8M50-11v1.8M50 11v-1.8"/>
+    <g class="sh-lb"><rect x="-71" y="-15.6" width="9" height="3" rx="1.5"/><rect x="-71" y="12.6" width="9" height="3" rx="1.5"/></g>
+    <g class="sh-hatches">
+      <rect x="-46" y="-7.2" width="16" height="14.4"/><rect class="i" x="-44.5" y="-5.7" width="13" height="11.4"/><path class="s" d="M-38-5.7V5.7"/>
+      <rect x="-24" y="-7.2" width="16" height="14.4"/><rect class="i" x="-22.5" y="-5.7" width="13" height="11.4"/><path class="s" d="M-16-5.7V5.7"/>
+      <rect x="-2" y="-7.2" width="16" height="14.4"/><rect class="i" x="-.5" y="-5.7" width="13" height="11.4"/><path class="s" d="M6-5.7V5.7"/>
+      <rect x="20" y="-7.2" width="16" height="14.4"/><rect class="i" x="21.5" y="-5.7" width="13" height="11.4"/><path class="s" d="M28-5.7V5.7"/>
+      <rect x="42" y="-6.4" width="14" height="12.8"/><rect class="i" x="43.5" y="-4.9" width="11" height="9.8"/><path class="s" d="M49-4.9V4.9"/>
+    </g>
+    <g class="sh-cranes">
+      <circle cx="-27" cy="0" r="2.6"/><path d="M-27 0L-12-1.4"/><path class="k" d="M-12-1.4v2.6"/>
+      <circle cx="-5" cy="0" r="2.6"/><path d="M-5 0L10-1.4"/><path class="k" d="M10-1.4v2.6"/>
+      <circle cx="17" cy="0" r="2.6"/><path d="M17 0L32-1.4"/><path class="k" d="M32-1.4v2.6"/>
+      <circle cx="39" cy="0" r="2.6"/><path d="M39 0L54-1.4"/><path class="k" d="M54-1.4v2.6"/>
+    </g>
+    <g class="sh-sup">
+      <rect x="-72" y="-9" width="21" height="18" rx=".8"/>
+      <rect class="i" x="-69" y="-6.5" width="12" height="13"/>
+      <path class="w" d="M-56-13V13"/>
+      <rect class="sh-fun" x="-68.5" y="-2.6" width="5" height="5.2" rx="1"/>
+      <path class="m" d="M-60 0h-1M-54-11v-5"/>
+    </g>
+    <g class="sh-fore">
+      <circle cx="61" cy="-3.6" r="1.8"/><circle cx="61" cy="3.6" r="1.8"/>
+      <path d="M61-3.6L71-6.2M61 3.6L71 6.2M66 0h-3"/>
+      <circle cx="69" cy="0" r="1"/>
+    </g>
+    <g class="sh-bol"><circle cx="-62" cy="-11.6" r="1.1"/><circle cx="-40" cy="-11.6" r="1.1"/><circle cx="-10" cy="-11.6" r="1.1"/><circle cx="22" cy="-11.6" r="1.1"/><circle cx="48" cy="-10.6" r="1.1"/>
+      <circle cx="-62" cy="11.6" r="1.1"/><circle cx="-40" cy="11.6" r="1.1"/><circle cx="-10" cy="11.6" r="1.1"/><circle cx="22" cy="11.6" r="1.1"/><circle cx="48" cy="10.6" r="1.1"/></g>
+    <path class="hl" d="M78 0H106"/>
+  </g>
+  <g id="anc-sym"><circle cx="0" cy="-5.2" r="1.4"/><path d="M0-3.8V6M-3.4-1.2H3.4M-5 2.2C-3.6 6 3.6 6 5 2.2"/></g>
+  <path id="fix-sym" d="M-4 0H4M0-4V4"/>
+</defs>
+<g transform="translate(0 95)">
+<g class="pl-grid">
+  <path class="g1" d="M0 100H1600M0 200H1600M0 300H1600M0 500H1600M0 600H1600M0 700H1600M0 900H1600M100 0V1000M200 0V1000M300 0V1000M500 0V1000M600 0V1000M700 0V1000M900 0V1000M1000 0V1000M1100 0V1000M1300 0V1000M1400 0V1000M1500 0V1000"/>
+  <path class="g2" d="M0 400H1600M0 800H1600M400 0V1000M800 0V1000M1200 0V1000"/>
+</g>
+<path class="ch-tick" d="M397 0h6M398.5 20h3M398.5 40h3M398.5 60h3M398.5 80h3M397 100h6M398.5 120h3M398.5 140h3M398.5 160h3M398.5 180h3M397 200h6M398.5 220h3M398.5 240h3M398.5 260h3M398.5 280h3M397 300h6M398.5 320h3M398.5 340h3M398.5 360h3M398.5 380h3M397 400h6M398.5 420h3M398.5 440h3M398.5 460h3M398.5 480h3M397 500h6M398.5 520h3M398.5 540h3M398.5 560h3M398.5 580h3M397 600h6M398.5 620h3M398.5 640h3M398.5 660h3M398.5 680h3M397 700h6M398.5 720h3M398.5 740h3M398.5 760h3M398.5 780h3M397 800h6M398.5 820h3M398.5 840h3M398.5 860h3M398.5 880h3M397 900h6M398.5 920h3M398.5 940h3M398.5 960h3M398.5 980h3M397 1000h6M797 0h6M798.5 20h3M798.5 40h3M798.5 60h3M798.5 80h3M797 100h6M798.5 120h3M798.5 140h3M798.5 160h3M798.5 180h3M797 200h6M798.5 220h3M798.5 240h3M798.5 260h3M798.5 280h3M797 300h6M798.5 320h3M798.5 340h3M798.5 360h3M798.5 380h3M797 400h6M798.5 420h3M798.5 440h3M798.5 460h3M798.5 480h3M797 500h6M798.5 520h3M798.5 540h3M798.5 560h3M798.5 580h3M797 600h6M798.5 620h3M798.5 640h3M798.5 660h3M798.5 680h3M797 700h6M798.5 720h3M798.5 740h3M798.5 760h3M798.5 780h3M797 800h6M798.5 820h3M798.5 840h3M798.5 860h3M798.5 880h3M797 900h6M798.5 920h3M798.5 940h3M798.5 960h3M798.5 980h3M797 1000h6M1197 0h6M1198.5 20h3M1198.5 40h3M1198.5 60h3M1198.5 80h3M1197 100h6M1198.5 120h3M1198.5 140h3M1198.5 160h3M1198.5 180h3M1197 200h6M1198.5 220h3M1198.5 240h3M1198.5 260h3M1198.5 280h3M1197 300h6M1198.5 320h3M1198.5 340h3M1198.5 360h3M1198.5 380h3M1197 400h6M1198.5 420h3M1198.5 440h3M1198.5 460h3M1198.5 480h3M1197 500h6M1198.5 520h3M1198.5 540h3M1198.5 560h3M1198.5 580h3M1197 600h6M1198.5 620h3M1198.5 640h3M1198.5 660h3M1198.5 680h3M1197 700h6M1198.5 720h3M1198.5 740h3M1198.5 760h3M1198.5 780h3M1197 800h6M1198.5 820h3M1198.5 840h3M1198.5 860h3M1198.5 880h3M1197 900h6M1198.5 920h3M1198.5 940h3M1198.5 960h3M1198.5 980h3M1197 1000h6M0 397v6M20 398.5v3M40 398.5v3M60 398.5v3M80 398.5v3M100 397v6M120 398.5v3M140 398.5v3M160 398.5v3M180 398.5v3M200 397v6M220 398.5v3M240 398.5v3M260 398.5v3M280 398.5v3M300 397v6M320 398.5v3M340 398.5v3M360 398.5v3M380 398.5v3M400 397v6M420 398.5v3M440 398.5v3M460 398.5v3M480 398.5v3M500 397v6M520 398.5v3M540 398.5v3M560 398.5v3M580 398.5v3M600 397v6M620 398.5v3M640 398.5v3M660 398.5v3M680 398.5v3M700 397v6M720 398.5v3M740 398.5v3M760 398.5v3M780 398.5v3M800 397v6M820 398.5v3M840 398.5v3M860 398.5v3M880 398.5v3M900 397v6M920 398.5v3M940 398.5v3M960 398.5v3M980 398.5v3M1000 397v6M1020 398.5v3M1040 398.5v3M1060 398.5v3M1080 398.5v3M1100 397v6M1120 398.5v3M1140 398.5v3M1160 398.5v3M1180 398.5v3M1200 397v6M1220 398.5v3M1240 398.5v3M1260 398.5v3M1280 398.5v3M1300 397v6M1320 398.5v3M1340 398.5v3M1360 398.5v3M1380 398.5v3M1400 397v6M1420 398.5v3M1440 398.5v3M1460 398.5v3M1480 398.5v3M1500 397v6M1520 398.5v3M1540 398.5v3M1560 398.5v3M1580 398.5v3M1600 397v6M0 797v6M20 798.5v3M40 798.5v3M60 798.5v3M80 798.5v3M100 797v6M120 798.5v3M140 798.5v3M160 798.5v3M180 798.5v3M200 797v6M220 798.5v3M240 798.5v3M260 798.5v3M280 798.5v3M300 797v6M320 798.5v3M340 798.5v3M360 798.5v3M380 798.5v3M400 797v6M420 798.5v3M440 798.5v3M460 798.5v3M480 798.5v3M500 797v6M520 798.5v3M540 798.5v3M560 798.5v3M580 798.5v3M600 797v6M620 798.5v3M640 798.5v3M660 798.5v3M680 798.5v3M700 797v6M720 798.5v3M740 798.5v3M760 798.5v3M780 798.5v3M800 797v6M820 798.5v3M840 798.5v3M860 798.5v3M880 798.5v3M900 797v6M920 798.5v3M940 798.5v3M960 798.5v3M980 798.5v3M1000 797v6M1020 798.5v3M1040 798.5v3M1060 798.5v3M1080 798.5v3M1100 797v6M1120 798.5v3M1140 798.5v3M1160 798.5v3M1180 798.5v3M1200 797v6M1220 798.5v3M1240 798.5v3M1260 798.5v3M1280 798.5v3M1300 797v6M1320 798.5v3M1340 798.5v3M1360 798.5v3M1380 798.5v3M1400 797v6M1420 798.5v3M1440 798.5v3M1460 798.5v3M1480 798.5v3M1500 797v6M1520 798.5v3M1540 798.5v3M1560 798.5v3M1580 798.5v3M1600 797v6"/>
+<g class="ch-geo">
+  <text x="246" y="394">20°58′N</text><text x="246" y="794">20°57′N</text>
+  <text x="406" y="394">107°03′E</text><text x="806" y="394">107°04′E</text><text x="1206" y="394">107°05′E</text>
+</g>
+<g class="pl-iso" fill="none">
+  <use href="#hc" class="iso" style="--w:288px"/><use href="#hc" class="iso-f" style="--w:287px"/>
+  <use href="#hc" class="iso" style="--w:240px"/><use href="#hc" class="iso-f" style="--w:239px"/>
+  <use href="#hc" class="iso" style="--w:192px"/><use href="#hc" class="iso-f" style="--w:191px"/>
+  <use href="#hc" class="iso" style="--w:144px"/><use href="#hc" class="iso-f" style="--w:143px"/>
+  <use href="#hc" class="iso" style="--w:96px"/><use href="#hc" class="iso-f" style="--w:95px"/>
+  <use href="#hc" class="iso" style="--w:48px"/><use href="#hc" class="iso-f" style="--w:47px"/>
+  <use href="#hc" class="stip" style="--w:44px"/>
+</g>
+<g class="ch-ctr"><path class="ctr" pathLength="1" d="M-20 476C120 456 220 386 340 406C460 426 520 356 640 356C720 356 760 396 800 412C860 436 900 386 1000 376C1120 364 1180 416 1300 396C1400 380 1500 336 1620 356"/><text class="ctr-lbl" x="560" y="364.4">5</text><text class="ctr-lbl" x="1380" y="377.2">5</text><path class="ctr" pathLength="1" d="M-20 544C120 524 220 454 340 474C460 494 520 424 640 424C720 424 760 464 800 480C860 504 900 454 1000 444C1120 432 1180 484 1300 464C1400 448 1500 404 1620 424"/><text class="ctr-lbl" x="560" y="432.4">10</text><text class="ctr-lbl" x="1380" y="445.2">10</text><path class="ctr" pathLength="1" d="M-20 632C120 612 220 542 340 562C460 582 520 512 640 512C720 512 760 552 800 568C860 592 900 542 1000 532C1120 520 1180 572 1300 552C1400 536 1500 492 1620 512"/><text class="ctr-lbl" x="560" y="520.4">20</text><text class="ctr-lbl" x="1380" y="533.2">20</text></g>
+<g class="pl-isl">
+  <path d="M480 520c16-18 50-18 62 0s8 40-12 48-52 4-58-14 0-24 8-34z"/>
+  <path d="M1160 512c14-16 44-16 54 0s6 34-12 40-44 2-48-12 0-20 6-28z"/>
+  <path d="M300 610c10-12 32-12 40 0s4 24-10 28-32 0-34-12 0-10 4-16z"/>
+  <path d="M1320 640c12-12 36-12 44 0s4 26-12 30-34 0-36-14 0-10 4-16z"/>
+  <path d="M960 470c6-8 20-8 24 0s0 14-8 16-16-2-18-8 0-4 2-8z"/>
+  <ellipse class="ctr" pathLength="1" cx="510" cy="544" rx="52" ry="38"/><ellipse class="ctr" pathLength="1" cx="1186" cy="532" rx="46" ry="34"/>
+  <ellipse class="ctr" pathLength="1" cx="318" cy="624" rx="36" ry="26"/><ellipse class="ctr" pathLength="1" cx="1340" cy="656" rx="40" ry="28"/>
+</g>
+<g class="pl-land">
+  <path class="land" d="M-20 420C120 400 220 330 340 350C460 370 520 300 640 300C720 300 760 340 800 356C860 380 900 330 1000 320C1120 308 1180 360 1300 340C1400 324 1500 280 1620 300 L1620 -20L-20 -20Z"/>
+  <path class="land-h" d="M-20 420C120 400 220 330 340 350C460 370 520 300 640 300C720 300 760 340 800 356C860 380 900 330 1000 320C1120 308 1180 360 1300 340C1400 324 1500 280 1620 300 L1620 -20L-20 -20Z" fill="url(#hh)"/>
+  <use href="#hc" class="coast"/>
+  <path class="rv-o" d="M1000 320C990 260 1030 200 1020 140C1010 80 1060 30 1050 -20"/>
+  <path class="rv-f" d="M1000 320C990 260 1030 200 1020 140C1010 80 1060 30 1050 -20"/>
+</g>
+<g class="ch-cur">
+  <path d="M250 560C380 548 470 580 600 566S820 540 930 556"/>
+  <path d="M230 640C360 630 450 662 590 648S800 622 900 640"/>
+  <path d="M240 730C370 718 480 752 620 736S830 712 940 730"/>
+  <path d="M270 830C400 820 500 850 640 836S850 814 960 832"/>
+  <path d="M1180 470C1300 460 1380 490 1500 478S1600 470 1640 476"/>
+  <path d="M1170 580C1290 570 1370 600 1490 588S1600 578 1640 584"/>
+  <path d="M1200 760C1320 750 1400 780 1520 768S1600 760 1640 766"/>
+  <path d="M1220 880C1340 870 1420 900 1540 888S1600 880 1640 886"/>
+  <g class="tide" transform="translate(770 600)"><path d="M-30 0H34M24-5L34 0 24 5M-30-5V5M-18-3V3M-6-3V3"/><text x="-30" y="18" data-i18n="chTide">DÒNG TRIỀU 1,2 kn</text></g>
+  <g class="tide" transform="translate(1420 530)"><path d="M-30 0H34M24-5L34 0 24 5M-30-5V5M-18-3V3"/><text x="-30" y="18" data-i18n="chTide2">0,8 kn</text></g>
+</g>
+<g class="pl-snd"><text x="300" y="500">7<tspan class="dm" dy="2.6">2</tspan></text><text x="380" y="470">5<tspan class="dm" dy="2.6">8</tspan></text><text x="560" y="452">6<tspan class="dm" dy="2.6">1</tspan></text><text x="640" y="520">9<tspan class="dm" dy="2.6">4</tspan></text><text x="720" y="480">8<tspan class="dm" dy="2.6">0</tspan></text><text x="840" y="470">7<tspan class="dm" dy="2.6">6</tspan></text><text x="900" y="540">11<tspan class="dm" dy="2.6">2</tspan></text><text x="1080" y="460">6<tspan class="dm" dy="2.6">9</tspan></text><text x="1150" y="470">8<tspan class="dm" dy="2.6">3</tspan></text><text x="1240" y="440">5<tspan class="dm" dy="2.6">4</tspan></text><text x="1360" y="452">6<tspan class="dm" dy="2.6">7</tspan></text><text x="1460" y="430">7<tspan class="dm" dy="2.6">1</tspan></text><text x="1520" y="500">10<tspan class="dm" dy="2.6">8</tspan></text><text x="260" y="700">14<tspan class="dm" dy="2.6">6</tspan></text><text x="400" y="620">12<tspan class="dm" dy="2.6">1</tspan></text><text x="470" y="700">15<tspan class="dm" dy="2.6">3</tspan></text><text x="560" y="660">13<tspan class="dm" dy="2.6">8</tspan></text><text x="680" y="600">12<tspan class="dm" dy="2.6">4</tspan></text><text x="760" y="620">14<tspan class="dm" dy="2.6">9</tspan></text><text x="860" y="640">16<tspan class="dm" dy="2.6">2</tspan></text><text x="940" y="600">13<tspan class="dm" dy="2.6">0</tspan></text><text x="1180" y="620">15<tspan class="dm" dy="2.6">7</tspan></text><text x="1280" y="560">12<tspan class="dm" dy="2.6">9</tspan></text><text x="1400" y="580">14<tspan class="dm" dy="2.6">1</tspan></text><text x="1500" y="640">17<tspan class="dm" dy="2.6">3</tspan></text><text x="330" y="900">22<tspan class="dm" dy="2.6">4</tspan></text><text x="430" y="840">19<tspan class="dm" dy="2.6">6</tspan></text><text x="520" y="920">23<tspan class="dm" dy="2.6">1</tspan></text><text x="700" y="860">18<tspan class="dm" dy="2.6">4</tspan></text><text x="800" y="930">21<tspan class="dm" dy="2.6">5</tspan></text><text x="900" y="830">19<tspan class="dm" dy="2.6">0</tspan></text><text x="1180" y="720">18<tspan class="dm" dy="2.6">8</tspan></text><text x="1250" y="880">21<tspan class="dm" dy="2.6">3</tspan></text><text x="1360" y="760">19<tspan class="dm" dy="2.6">5</tspan></text><text x="1460" y="840">22<tspan class="dm" dy="2.6">7</tspan></text><text x="1540" y="930">24<tspan class="dm" dy="2.6">0</tspan></text></g>
+<g class="ch-fair"><path class="fair" pathLength="1" d="M1102 800C1092 660 1062 480 1042 320"/><path class="fair" pathLength="1" d="M1018 800C1008 660 978 480 958 320"/><text class="fair-lbl" transform="translate(1112 600) rotate(-80)" data-i18n="chFair">LUỒNG</text><g class="buoy fl1" style="--per:3s" transform="translate(1081.6 689.5)"><rect class="b-shape" x="-3.4" y="-3.4" width="6.8" height="6.8"/><circle class="b-light" r="1.6"/><text x="-9" y="3.4" text-anchor="end">Fl.R.3s</text></g><g class="buoy fl1" style="--per:3s" transform="translate(1018 696.8)"><path class="b-shape" d="M-4 3.6H4L0-4.2Z"/><circle class="b-light" r="1.6"/><text x="9" y="3.4" text-anchor="start">Fl.G.3s</text></g><g class="buoy fl2" style="--per:6s" transform="translate(1057.2 503.3)"><rect class="b-shape" x="-3.4" y="-3.4" width="6.8" height="6.8"/><circle class="b-light" r="1.6"/><text x="-9" y="3.4" text-anchor="end">Fl(2)R.6s</text></g><g class="buoy fl2" style="--per:6s" transform="translate(993.8 512.2)"><path class="b-shape" d="M-4 3.6H4L0-4.2Z"/><circle class="b-light" r="1.6"/><text x="9" y="3.4" text-anchor="start">Fl(2)G.6s</text></g><g class="buoy fl3" style="--per:10s" transform="translate(1043.7 771.2)"><circle class="b-shape" r="3.6"/><circle class="b-light" r="1.6"/><text x="9" y="3.4" text-anchor="start">LFl.10s</text></g></g>
+<g class="ch-anch">
+  <rect class="anch-area" pathLength="1" x="830" y="672" width="460" height="256" rx="128"/>
+  <use href="#anc-sym" class="anc" transform="translate(830 800)"/><use href="#anc-sym" class="anc" transform="translate(1290 800)"/><use href="#anc-sym" class="anc" transform="translate(1060 672)"/>
+  <circle class="rr" cx="1060" cy="800" r="98"/><circle class="rr" cx="1060" cy="800" r="140"/>
+  <text class="rr-lbl" x="1064" y="698" data-i18n="rr1">0,25</text><text class="rr-lbl" x="1064" y="656" data-i18n="rr2">0,35</text>
+  <g class="sweep-g" id="sweep"><path class="sweep" d="M1060 800L1210 800A150 150 0 0 0 1182 712Z"/><path class="sweep-l" d="M1060 800H1210"/></g>
+  <circle class="anch" cx="1060" cy="800" r="62"/>
+  <circle class="pulse" id="pulseA" cx="1060" cy="800" r="62"/><circle class="pulse" id="pulseB" cx="1060" cy="800" r="62"/>
+</g>
+<g class="ms" id="motherShip" transform="translate(1060 800) rotate(-152)">
+  <g class="moor"><path d="M-62-11L-62-14M-2-11L-2-14M20-11L20-14M60-10L60-14M-40 11L-40 14M18 11L18 14"/></g>
+  <use href="#barge-sym" class="along" transform="translate(-32 -22)"/>
+  <use href="#barge-sym" class="along" transform="translate(40 -22)"/>
+  <use href="#barge-sym" class="along" transform="translate(-10 22)"/>
+  <use href="#ship-sym" id="shipSym"/>
+</g>
+<g class="ais hud" id="shipHud" transform="translate(1150 700)">
+  <path class="ld" d="M-12 36L-54 80"/>
+  <text class="t1" y="0" data-i18n="aisShip">MV SAMPLE STAR · ĐANG NEO</text>
+  <text class="t2" y="15" id="hudPos">20°57,00′N · 107°04,65′E</text>
+  <text class="t2" y="30" id="hudNav">HDG 298° · SOG 0,0 kn</text>
+</g>
+<g class="pl-route">
+  <path class="leg-sea" id="heroSea" pathLength="1" d="M1060 800C1050 660 1020 480 1000 320"/>
+  <path class="leg-river" data-dash-draw d="M1000 320C990 260 1030 200 1020 140"/>
+  <g class="fixes" id="fixes"></g>
+  <circle class="wp-pulse" cx="1000" cy="320" r="8"/><circle class="wp-pulse" cx="1020" cy="140" r="8" style="animation-delay:1.6s"/>
+  <circle class="mk-mouth" cx="1000" cy="320" r="8"/>
+  <rect class="mk-port" x="1012" y="132" width="16" height="16"/>
+  <text class="lbl" x="990" y="722" text-anchor="end" data-i18n="lblAnch">KHU CHUYỂN TẢI</text>
+  <text class="lbl" x="1024" y="352" data-i18n="lblMouth">CỬA SÔNG</text>
+  <text class="lbl" x="1042" y="146" data-i18n="lblPort">BẾN</text>
+  <g class="bg" id="bg1"><g class="bg-body"><use href="#barge-sym"/></g><circle class="bg-ring" r="9"/><g class="ais tag" transform="translate(14 -12)"><text class="t1">SL-07</text><text class="t2" y="13">6,1 kn · 352°</text></g></g>
+  <g class="bg" id="bg2"><g class="bg-body"><use href="#barge-sym"/></g><circle class="bg-ring" r="9"/><g class="ais tag" transform="translate(14 -12)"><text class="t1">SL-12</text><text class="t2" y="13">5,8 kn · 351°</text></g></g>
+  <g class="bg" id="bg3"><g class="bg-body"><use href="#barge-sym"/></g><circle class="bg-ring" r="9"/><g class="ais tag" transform="translate(14 -12)"><text class="t1">SL-03</text><text class="t2" y="13">6,4 kn · 353°</text></g></g>
+</g>
+<g class="rose" transform="translate(1330 610)">
+  <circle r="46"/><circle r="34"/><path class="tk" d="M0 -46L0 -38M8 -45.3L7.6 -42.8M15.7 -43.2L14.9 -40.9M23 -39.8L20.5 -35.5M29.6 -35.2L28 -33.3M35.2 -29.6L33.3 -28M39.8 -23L35.5 -20.5M43.2 -15.7L40.9 -14.9M45.3 -8L42.8 -7.6M46 -0L38 -0M45.3 8L42.8 7.6M43.2 15.7L40.9 14.9M39.8 23L35.5 20.5M35.2 29.6L33.3 28M29.6 35.2L28 33.3M23 39.8L20.5 35.5M15.7 43.2L14.9 40.9M8 45.3L7.6 42.8M0 46L0 38M-8 45.3L-7.6 42.8M-15.7 43.2L-14.9 40.9M-23 39.8L-20.5 35.5M-29.6 35.2L-28 33.3M-35.2 29.6L-33.3 28M-39.8 23L-35.5 20.5M-43.2 15.7L-40.9 14.9M-45.3 8L-42.8 7.6M-46 0L-38 0M-45.3 -8L-42.8 -7.6M-43.2 -15.7L-40.9 -14.9M-39.8 -23L-35.5 -20.5M-35.2 -29.6L-33.3 -28M-29.6 -35.2L-28 -33.3M-23 -39.8L-20.5 -35.5M-15.7 -43.2L-14.9 -40.9M-8 -45.3L-7.6 -42.8"/>
+  <path class="n" d="M0-34L-4-20H4Z"/><path class="x" d="M-34 0H34M0-34V34"/>
+  <text y="-52" text-anchor="middle">N</text>
+</g>
+<g class="title" transform="translate(548 700)">
+  <text class="t0" y="0">VESSEL SUBNET</text>
+  <text y="17" data-i18n="chTitle1">HẢI ĐỒ MINH HOẠ · WGS-84</text>
+  <text y="32" data-i18n="chTitle1b">ĐỘ SÂU TÍNH BẰNG MÉT</text>
+  <text y="47" data-i18n="chTitle2">KHÔNG DÙNG ĐỂ HÀNH HẢI</text>
+  <g class="scale" transform="translate(0 66)">
+    <rect x="0" y="-2" width="50" height="4"/><rect class="e" x="50" y="-2" width="50" height="4"/>
+    <path class="tk" d="M0-6V6M50-6V6M100-6V6"/>
+    <text x="0" y="-10" text-anchor="middle">0</text><text x="100" y="-10" text-anchor="middle" data-i18n="rr1">0,25</text>
+    <text class="u" x="112" y="3.5" data-i18n="chScale">HẢI LÝ</text>
+  </g>
+</g>
+</g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="hero-in">
+    <p class="eyebrow" data-intro data-i18n="heroEb">Điều phối sà lan chuyển tải · Quảng Ninh, Hải Phòng</p>
+    <h1 class="display" id="heroTitle" data-i18n="heroH1">Tìm sà lan kịp lúc,<br>giải phóng tàu mẹ đúng hạn.</h1>
+    <p class="lead" data-intro data-i18n="heroSub">Gửi một yêu cầu cho tàu mẹ, các chủ sà lan đã qua kiểm tra giấy tờ sẽ báo giá cho bạn. Bạn chọn sà lan rồi theo dõi từng chuyến đến khi dỡ xong hàng.</p>
+    <div class="cta" data-intro>
+      <a class="btn btn-light" href="#bat-dau" data-i18n="heroCta1">Gửi yêu cầu tìm sà lan</a>
+      <a class="tlink" href="#chu-sa-lan"><span data-i18n="heroCta2">Tôi là chủ sà lan</span></a>
+    </div>
+  </div>
+
+  <aside class="lacq hero-card" id="heroCard" aria-label="Thẻ yêu cầu minh hoạ" data-i18n-attr="aria-label:cardAria">
+    <div class="lq-h"><span data-i18n="cardH">Yêu cầu · MV Sample Star</span><span class="tag" data-i18n="sample">Minh hoạ</span></div>
+    <dl class="lq-kv">
+      <div><dt data-i18n="cardLt">Thời gian làm hàng còn</dt><dd class="num" data-i18n="cardLtV">3 ngày 4 giờ</dd></div>
+      <div><dt data-i18n="cardConf">Đã xác nhận</dt><dd class="num" data-i18n="cardConfV">9/15 sà lan</dd></div>
+    </dl>
+    <div class="lq-bar" aria-hidden="true"><i style="transform:scaleX(.6)"></i></div>
+  </aside>
+
+  <div class="hero-foot" data-intro>
+    <span data-i18n="heroScope">Hiện nhận than và hàng rời</span>
+    <a class="cue" href="#van-de"><span data-i18n="cue">Cuộn xuống</span><i aria-hidden="true"></i></a>
+    <span class="num hero-geo"><span id="heroCoord">20°57,00′N · 107°04,65′E</span><span class="sep">·</span><span id="heroClock">--:--:--</span></span>
+  </div>
+</section>
+
+<!-- ───────── 01 · Vấn đề (tối) ───────── -->
+<section class="problem tone-dark" id="van-de">
+  <div class="wrap">
+    <header class="sec-h" data-reveal>
+      <p class="eyebrow" data-i18n="pEb">Vấn đề</p>
+      <h2 class="h2" data-i18n="pH2">Tàu mẹ nằm chờ vì thiếu sà lan.</h2>
+    </header>
+  </div>
+  <div class="pin" id="pPin">
+    <div class="wrap p-grid">
+      <ol class="p-steps">
+        <li class="p-step"><span class="p-n num">01</span><p data-i18n="p1">Tàu mẹ chỉ được neo ở khu chuyển tải trong một số ngày nhất định và phải dỡ hết hàng trong thời gian đó.</p></li>
+        <li class="p-step"><span class="p-n num">02</span><p data-i18n="p2">Muốn thuê sà lan, bên nhận hàng phải gọi qua đại lý. Một đại lý nhiều khi không đủ tàu, nên phải gọi thêm vài đại lý nữa.</p></li>
+        <li class="p-step"><span class="p-n num">03</span><p data-i18n="p3">Không có chỗ nào để xem sà lan nào đang rảnh.</p></li>
+      </ol>
+      <div class="lacq p-vis">
+        <div class="laytime">
+          <div class="lt-top"><span data-i18n="ltLabel">Thời gian làm hàng</span><span class="num" id="ltVal">15%</span></div>
+          <div class="lt-track"><i class="lt-fill" id="ltFill"></i></div>
+          <div class="lt-ends"><span data-i18n="ltStart">Tàu mẹ đến</span><span data-i18n="ltEnd">Hết hạn</span></div>
+        </div>
+        <div class="pc-stage" id="pcStage" role="img" aria-label="Sơ đồ minh hoạ: nhà máy gọi lần lượt ba đại lý, trong khi nhiều sà lan khác đang rảnh." data-i18n-attr="aria-label:pSvgAria">
+          <img class="cp-poster" src="assets/problem/cp1.webp" alt="" decoding="async" loading="lazy">
+          <video class="cp-loop" data-cp="1" muted loop playsinline preload="metadata" poster="assets/problem/cp1.webp"><source src="assets/problem/cp1-loop.webm" type="video/webm"><source src="assets/problem/cp1-loop.mp4" type="video/mp4"></video>
+          <video class="cp-loop" data-cp="2" muted loop playsinline preload="none" poster="assets/problem/cp2.webp"><source src="assets/problem/cp2-loop.webm" type="video/webm"><source src="assets/problem/cp2-loop.mp4" type="video/mp4"></video>
+          <video class="cp-loop" data-cp="3" muted loop playsinline preload="none" poster="assets/problem/cp3.webp"><source src="assets/problem/cp3-loop.webm" type="video/webm"><source src="assets/problem/cp3-loop.mp4" type="video/mp4"></video>
+          <video class="cp-tr" data-tr="1-2" muted playsinline preload="none"><source src="assets/problem/t12.webm" type="video/webm"><source src="assets/problem/t12.mp4" type="video/mp4"></video>
+          <video class="cp-tr" data-tr="2-3" muted playsinline preload="none"><source src="assets/problem/t23.webm" type="video/webm"><source src="assets/problem/t23.mp4" type="video/mp4"></video>
+          <div class="pc-ov" aria-hidden="true">
+            <span class="pc-tag pc-tag-fac" data-i18n="dFac">NHÀ MÁY</span>
+            <span class="pc-tag pc-tag-anch" data-i18n="lblAnch">KHU CHUYỂN TẢI</span>
+            <span class="pc-tag pc-tag-un" id="pUnLbl" data-i18n="dUn">SÀ LAN ĐANG RẢNH</span>
+          </div>
+        </div>
+        <p class="note" data-i18n="illus">Sơ đồ minh hoạ</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── Dải ảnh A1 (tối) ───────── -->
+<section class="band tone-dark" aria-label="Khu chuyển tải" data-i18n-attr="aria-label:bandAria">
+  <figure class="asset band-media" data-asset="A1">
+    <video class="asset-video" autoplay muted loop playsinline preload="metadata" poster="assets/a1-anchorage.webp" aria-hidden="true">
+      <source src="assets/a1-anchorage.webm" type="video/webm">
+      <source src="assets/a1-anchorage.mp4" type="video/mp4">
+    </video>
+    <img src="assets/a1-anchorage.webp" alt="" loading="lazy" onerror="this.remove()">
+    <figcaption class="asset-cap"><b>ASSET A1</b> · <span data-i18n="a1cap">Video lặp: tàu mẹ neo một mình tại khu chuyển tải lúc đêm, chờ sà lan. Ngang 21:9.</span></figcaption>
+  </figure>
+  <div class="band-copy wrap"><p class="band-title" data-reveal data-i18n="pClose">Tàu nằm chờ thêm ngày nào là mất thêm tiền phạt lưu tàu ngày đó.</p></div>
+  <div class="band-lbl"><span data-i18n="bandLbl">Khu chuyển tải · tàu mẹ neo chờ sà lan</span><span class="num">20°57′N · 107°04′E</span></div>
+</section>
+
+<div class="coach" aria-hidden="true"><i></i></div>
+
+<!-- ───────── 02 · Cách vận hành (sáng, studio) ───────── -->
+<section class="how tone-light" id="cach-van-hanh">
+  <div class="wrap">
+    <header class="sec-h" data-reveal>
+      <p class="eyebrow" data-i18n="hEb">Cách làm</p>
+      <h2 class="h2" data-i18n="hH2">Từ lúc gửi yêu cầu đến khi ký biên bản giao nhận.</h2>
+    </header>
+    <div class="how-grid">
+      <div class="steps" id="steps">
+        <article class="step" data-step="1"><p class="step-n num">01</p><h3 class="h3" data-i18n="s1t">Gửi yêu cầu cho tàu mẹ</h3><p data-i18n="s1p">Bạn nhập tên tàu mẹ, ngày giờ dự kiến đến, khu chuyển tải, khối lượng hàng, hạn dỡ và bến nhận. Hệ thống tính ra cần bao nhiêu sà lan và bao nhiêu chuyến.</p></article>
+        <article class="step" data-step="2"><p class="step-n num">02</p><h3 class="h3" data-i18n="s2t">Nhận báo giá, chọn sà lan</h3><p data-i18n="s2p">Bạn xem sà lan nào đang rảnh ở bến và hỏi giá. Mỗi chủ sà lan báo giá riêng cho bạn và không thấy giá của người khác.</p></article>
+        <article class="step" data-step="3"><p class="step-n num">03</p><h3 class="h3" data-i18n="s3t">Theo dõi đến khi dỡ xong</h3><p data-i18n="s3p">Bạn xem được các mốc của từng chuyến, vị trí sà lan khi còn trên biển, thời gian làm hàng còn lại và biên bản giao nhận. Trên sông chưa có định vị liên tục nên hệ thống chỉ ghi các mốc chính.</p></article>
+      </div>
+      <div class="device-wrap">
+        <div class="device" id="device" aria-label="Minh hoạ giao diện" data-i18n-attr="aria-label:devAria">
+          <i class="dv-btn dv-act" aria-hidden="true"></i><i class="dv-btn dv-vol dv-vol1" aria-hidden="true"></i><i class="dv-btn dv-vol dv-vol2" aria-hidden="true"></i><i class="dv-btn dv-pow" aria-hidden="true"></i>
+          <i class="dv-island" aria-hidden="true"></i>
+          <div class="screen">
+            <div class="sb" aria-hidden="true"><span class="sb-time num">9:41</span><span class="sb-ic"><i class="sb-sig"></i><i class="sb-wifi"></i><i class="sb-bat"></i></span></div>
+            <!-- Trạng thái 1 -->
+            <div class="state" data-state="1">
+              <div class="ui-h"><span data-i18n="u1h">Yêu cầu mới</span><span class="tag" data-i18n="sample">Minh hoạ</span></div>
+              <dl class="fld-grid">
+                <div><dt data-i18n="fShip">Tàu mẹ</dt><dd>MV Sample Star</dd></div>
+                <div><dt>ETA</dt><dd class="num">08/10 · 14:00</dd></div>
+                <div><dt data-i18n="fArea">Khu chuyển tải</dt><dd>Hòn Gai</dd></div>
+                <div><dt data-i18n="fTon">Khối lượng</dt><dd class="num" data-i18n="fTonV">45.000 tấn</dd></div>
+                <div><dt data-i18n="fLay">Hạn dỡ</dt><dd class="num">12/10 · 18:00</dd></div>
+                <div><dt data-i18n="fWharf">Bến nhận</dt><dd data-i18n="fWharfV">Bến mẫu A</dd></div>
+              </dl>
+              <div class="calc"><span data-i18n="u1calc">Cần khoảng</span><b class="num" data-i18n="u1calcV">15 sà lan · 30 chuyến</b></div>
+              <span class="ui-btn" aria-hidden="true" data-i18n="u1btn">Hỏi giá</span>
+            </div>
+            <!-- Trạng thái 2 -->
+            <div class="state" data-state="2">
+              <div class="ui-h"><span data-i18n="u2h">Sà lan đang rảnh</span><span class="tag" data-i18n="sample">Minh hoạ</span></div>
+              <ul class="bl">
+                <li><b data-i18n="b1">Sà lan 01</b><span class="num" data-i18n="b1s">1.600 tấn · sức chìm 3,1 m</span><em data-i18n="sealed">Đã báo giá</em></li>
+                <li><b data-i18n="b2">Sà lan 02</b><span class="num" data-i18n="b2s">1.450 tấn · sức chìm 2,9 m</span><em data-i18n="sealed">Đã báo giá</em></li>
+                <li><b data-i18n="b3">Sà lan 03</b><span class="num" data-i18n="b3s">1.500 tấn · sức chìm 3,0 m</span><em data-i18n="sealed">Đã báo giá</em></li>
+                <li class="wait"><b data-i18n="b4">Sà lan 04</b><span class="num" data-i18n="b4s">1.700 tấn · sức chìm 3,3 m</span><em data-i18n="waiting">Chưa báo giá</em></li>
+              </ul>
+              <p class="ui-note" data-i18n="u2note">3/4 chủ sà lan đã báo giá. Họ không thấy giá của nhau.</p>
+              <span class="ui-btn" aria-hidden="true" data-i18n="u2btn">Chọn sà lan</span>
+            </div>
+            <!-- Trạng thái 3 -->
+            <div class="state" data-state="3">
+              <div class="ui-h"><span data-i18n="u3h">Chuyến 7/15</span><span class="tag" data-i18n="sample">Minh hoạ</span></div>
+              <svg class="trk-map" viewBox="0 0 360 70" aria-hidden="true"><path class="trk-base" d="M14 52C80 50 120 20 176 22"/><path class="trk-sea" pathLength="1" d="M14 52C80 50 120 20 176 22"/><path class="trk-river" d="M176 22C230 24 260 50 346 44"/><circle class="trk-mk done" cx="14" cy="52" r="5"/><circle class="trk-mk done" cx="176" cy="22" r="5"/><rect class="trk-port" x="340" y="38" width="12" height="12"/></svg>
+              <ol class="trk">
+                <li class="done"><span data-i18n="m1">Rời tàu mẹ</span><span class="num">06:40</span></li>
+                <li class="done"><span data-i18n="m2">Qua cửa sông</span><span class="num">09:15</span></li>
+                <li><span data-i18n="m3">Đến bến</span><span class="num" data-i18n="m3v">dự kiến 13:30</span></li>
+                <li><span data-i18n="m4">Bắt đầu dỡ</span><span class="num">—</span></li>
+                <li><span data-i18n="m5">Dỡ xong</span><span class="num">—</span></li>
+              </ol>
+              <div class="ui-lt"><span data-i18n="u3lt">Thời gian làm hàng còn</span><b class="num" data-i18n="cardLtV">3 ngày 4 giờ</b></div>
+              <p class="ui-legend"><span class="lg-s" data-i18n="lgSea">trên biển: có định vị</span><span class="lg-d" data-i18n="lgRiver">trên sông: chỉ có mốc</span></p>
+            </div>
+            <i class="hi" aria-hidden="true"></i>
+          </div>
+        </div>
+        <div class="floor" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="coach" aria-hidden="true"><i></i></div>
+
+<!-- ───────── 03 · Mạng lưới (tối) ───────── -->
+<section class="net tone-dark" id="mang-luoi">
+  <div class="wrap net-head">
+    <header class="sec-h" data-reveal>
+      <p class="eyebrow" data-i18n="nEb">Mạng lưới</p>
+      <h2 class="h2" data-i18n="nH2">Mỗi sà lan có một hồ sơ, ghi cả các chuyến đã chạy.</h2>
+    </header>
+    <p class="lead" data-reveal data-i18n="nLead">Khi chủ sà lan tham gia, chúng tôi kiểm tra giấy tờ của sà lan. Lần sau cần thuê, bạn xem được sà lan đó đã chạy bao nhiêu chuyến qua hệ thống.</p>
+  </div>
+
+  <div class="wrap">
+    <div class="net-board" id="netBoard">
+      <div class="net-map lacq" data-reveal>
+        <svg class="net-svg" viewBox="0 0 1000 620" role="img" aria-label="Hải đồ minh hoạ: năm bến, mười sà lan đã kiểm tra và khu chuyển tải." data-i18n-attr="aria-label:nbAria">
+<defs><pattern id="nb-hh" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="rgba(243,242,239,.07)" stroke-width="1"/></pattern></defs>
+<g class="pc-grid"><path class="pc-g0" d="M50 0V620M100 0V620M150 0V620M250 0V620M300 0V620M350 0V620M450 0V620M500 0V620M550 0V620M650 0V620M700 0V620M750 0V620M850 0V620M900 0V620M950 0V620M0 50H1000M0 100H1000M0 150H1000M0 200H1000M0 250H1000M0 300H1000M0 350H1000M0 400H1000M0 450H1000M0 500H1000M0 550H1000M0 600H1000"/><path class="p-grid-l" d="M0 155H1000M0 310H1000M0 465H1000M200 0V620M400 0V620M600 0V620M800 0V620"/></g>
+<g class="pc-sea"><path class="ctr" pathLength="1" d="M-10 371C11.7 368.5 78.3 361.8 120 356C161.7 350.2 203.3 339.3 240 336C276.7 332.7 308.3 338.5 340 336C371.7 333.5 400 329.3 430 321C460 312.7 491.7 289.8 520 286C548.3 282.2 571.7 293 600 298C628.3 303 656.7 318 690 316C723.3 314 765 296.8 800 286C835 275.2 865 257.7 900 251C935 244.3 991.7 246.8 1010 246"/><path class="ctr" pathLength="1" d="M-10 415C11.7 412.5 78.3 405.8 120 400C161.7 394.2 203.3 383.3 240 380C276.7 376.7 308.3 382.5 340 380C371.7 377.5 400 373.3 430 365C460 356.7 491.7 333.8 520 330C548.3 326.2 571.7 337 600 342C628.3 347 656.7 362 690 360C723.3 358 765 340.8 800 330C835 319.2 865 301.7 900 295C935 288.3 991.7 290.8 1010 290"/><path class="ctr" pathLength="1" d="M-10 471C11.7 468.5 78.3 461.8 120 456C161.7 450.2 203.3 439.3 240 436C276.7 432.7 308.3 438.5 340 436C371.7 433.5 400 429.3 430 421C460 412.7 491.7 389.8 520 386C548.3 382.2 571.7 393 600 398C628.3 403 656.7 418 690 416C723.3 414 765 396.8 800 386C835 375.2 865 357.7 900 351C935 344.3 991.7 346.8 1010 346"/><g class="pl-snd pc-snd"><text x="70" y="400">9<tspan class="dm" dy="2.2">4</tspan></text><text x="180" y="372">7<tspan class="dm" dy="2.2">8</tspan></text><text x="300" y="392">10<tspan class="dm" dy="2.2">2</tspan></text><text x="470" y="340">6<tspan class="dm" dy="2.2">9</tspan></text><text x="590" y="350">8<tspan class="dm" dy="2.2">1</tspan></text><text x="760" y="330">7<tspan class="dm" dy="2.2">5</tspan></text><text x="960" y="300">9<tspan class="dm" dy="2.2">0</tspan></text><text x="120" y="500">14<tspan class="dm" dy="2.2">6</tspan></text><text x="330" y="500">13<tspan class="dm" dy="2.2">2</tspan></text><text x="480" y="470">12<tspan class="dm" dy="2.2">8</tspan></text><text x="560" y="560">15<tspan class="dm" dy="2.2">1</tspan></text><text x="950" y="420">13<tspan class="dm" dy="2.2">9</tspan></text><text x="60" y="590">18<tspan class="dm" dy="2.2">3</tspan></text><text x="280" y="595">17<tspan class="dm" dy="2.2">0</tspan></text><text x="960" y="580">16<tspan class="dm" dy="2.2">4</tspan></text></g><g class="ch-cur"><path d="M-20 400C120 390 260 420 420 408S700 380 1020 398"/><path d="M-20 470C140 460 300 490 480 476S760 450 1020 466"/><path d="M-20 545C160 535 320 565 500 551S780 525 1020 541"/><path d="M-20 600C140 590 300 618 480 606S760 582 1020 596"/></g></g>
+<g class="pc-land"><path class="pc-landf" d="M-10 335 C11.7 332.5 78.3 325.8 120 320 C161.7 314.2 203.3 303.3 240 300 C276.7 296.7 308.3 302.5 340 300 C371.7 297.5 400 293.3 430 285 C460 276.7 491.7 253.8 520 250 C548.3 246.2 571.7 257 600 262 C628.3 267 656.7 282 690 280 C723.3 278 765 260.8 800 250 C835 239.2 865 221.7 900 215 C935 208.3 991.7 210.8 1010 210 L1010 -10 L-10 -10 Z"/><path d="M-10 335 C11.7 332.5 78.3 325.8 120 320 C161.7 314.2 203.3 303.3 240 300 C276.7 296.7 308.3 302.5 340 300 C371.7 297.5 400 293.3 430 285 C460 276.7 491.7 253.8 520 250 C548.3 246.2 571.7 257 600 262 C628.3 267 656.7 282 690 280 C723.3 278 765 260.8 800 250 C835 239.2 865 221.7 900 215 C935 208.3 991.7 210.8 1010 210 L1010 -10 L-10 -10 Z" fill="url(#nb-hh)"/><path class="pc-coast" pathLength="1" d="M-10 335 C11.7 332.5 78.3 325.8 120 320 C161.7 314.2 203.3 303.3 240 300 C276.7 296.7 308.3 302.5 340 300 C371.7 297.5 400 293.3 430 285 C460 276.7 491.7 253.8 520 250 C548.3 246.2 571.7 257 600 262 C628.3 267 656.7 282 690 280 C723.3 278 765 260.8 800 250 C835 239.2 865 221.7 900 215 C935 208.3 991.7 210.8 1010 210"/><path class="pc-rvo" d="M240 300C230 240 190 190 130 140"/><path class="pc-rvf" d="M240 300C230 240 190 190 130 140"/><path class="pc-rvo" d="M430 285C420 220 390 150 350 95"/><path class="pc-rvf" d="M430 285C420 220 390 150 350 95"/><path class="pc-rvo" d="M690 280C690 220 670 160 650 110"/><path class="pc-rvf" d="M690 280C690 220 670 160 650 110"/><path class="pc-stip" d="M-10 341C11.7 338.5 78.3 331.8 120 326C161.7 320.2 203.3 309.3 240 306C276.7 302.7 308.3 308.5 340 306C371.7 303.5 400 299.3 430 291C460 282.7 491.7 259.8 520 256C548.3 252.2 571.7 263 600 268C628.3 273 656.7 288 690 286C723.3 284 765 266.8 800 256C835 245.2 865 227.7 900 221C935 214.3 991.7 216.8 1010 216"/></g>
+<g class="nb-routes"><g class="nb-route" data-w="A"><path class="nb-river" pathLength="1" d="M240 300C230 240 190 190 130 140"/><path class="nb-sea" pathLength="1" d="M240 300C340 400 520 470 700 505"/><path class="nb-flow" pathLength="1" d="M240 300C340 400 520 470 700 505"/></g><g class="nb-route" data-w="B"><path class="nb-river" pathLength="1" d="M430 285C420 220 390 150 350 95"/><path class="nb-sea" pathLength="1" d="M430 285C500 380 600 450 700 505"/><path class="nb-flow" pathLength="1" d="M430 285C500 380 600 450 700 505"/></g><g class="nb-route" data-w="C"><path class="nb-sea" pathLength="1" d="M520 250C580 350 640 430 700 505"/><path class="nb-flow" pathLength="1" d="M520 250C580 350 640 430 700 505"/></g><g class="nb-route" data-w="D"><path class="nb-river" pathLength="1" d="M690 280C690 220 670 160 650 110"/><path class="nb-sea" pathLength="1" d="M690 280C700 360 720 430 730 495"/><path class="nb-flow" pathLength="1" d="M690 280C700 360 720 430 730 495"/></g><g class="nb-route" data-w="E"><path class="nb-sea" pathLength="1" d="M900 215C880 330 840 440 790 495"/><path class="nb-flow" pathLength="1" d="M900 215C880 330 840 440 790 495"/></g></g><g class="fixes" id="nbFixes"></g>
+<g class="pc-anch"><rect class="anch-area" pathLength="1" x="610" y="445" width="300" height="150" rx="75"/>
+  <use href="#anc-sym" class="anc" transform="translate(610 520) scale(.75)"/><use href="#anc-sym" class="anc" transform="translate(910 520) scale(.75)"/>
+  <circle class="rr" cx="760" cy="520" r="58"/><g id="nbSweep"><path class="sweep" d="M760 520L818 520A58 58 0 0 0 806.6 486Z"/><path class="sweep-l" d="M760 520H818"/></g><circle class="anch" cx="760" cy="520" r="38"/><circle class="pulse" id="nbPulse" cx="760" cy="520" r="38"/>
+  <text class="lbl" x="760" y="612" text-anchor="middle" data-i18n="lblAnch">KHU CHUYỂN TẢI</text></g>
+<g class="pc-ship" transform="translate(760 520) rotate(-16) scale(.6)"><use href="#barge-sym" class="along" transform="translate(-30 -22)"/><use href="#ship-sym"/></g>
+<g class="nb-wharves"><g class="nb-wharf" data-w="A" transform="translate(130 140) rotate(-35)"><rect class="pier" x="-36" y="-5" width="72" height="10" rx="1"/><rect class="pier-h" x="-26" y="-16" width="14" height="9"/><circle class="pier-c" cx="16" cy="-10" r="3.2"/><path class="pier-j" d="M16 -10l14 -8"/><path class="pier-b" d="M-30 5v6M-10 5v6M10 5v6M30 5v6M-30 -5v-6M10 -5v-6"/></g><text class="lbl nb-wlbl" x="82.5" y="176.3" text-anchor="middle" data-i18n="nbWA">BẾN A</text><g class="nb-wharf" data-w="B" transform="translate(350 95) rotate(-20)"><rect class="pier" x="-36" y="-5" width="72" height="10" rx="1"/><rect class="pier-h" x="-26" y="-16" width="14" height="9"/><circle class="pier-c" cx="16" cy="-10" r="3.2"/><path class="pier-j" d="M16 -10l14 -8"/><path class="pier-b" d="M-30 5v6M-10 5v6M10 5v6M30 5v6M-30 -5v-6M10 -5v-6"/></g><text class="lbl nb-wlbl" x="295.5" y="117.8" text-anchor="middle" data-i18n="nbWB">BẾN B</text><g class="nb-wharf" data-w="C" transform="translate(520 250) rotate(12)"><rect class="pier" x="-36" y="-5" width="72" height="10" rx="1"/><rect class="pier-h" x="-26" y="-16" width="14" height="9"/><circle class="pier-c" cx="16" cy="-10" r="3.2"/><path class="pier-j" d="M16 -10l14 -8"/><path class="pier-b" d="M-30 5v6M-10 5v6M10 5v6M30 5v6M-30 -5v-6M10 -5v-6"/></g><text class="lbl nb-wlbl" x="526.7" y="221.7" text-anchor="middle" data-i18n="nbWC">BẾN C</text><g class="nb-wharf" data-w="D" transform="translate(650 110) rotate(-10)"><rect class="pier" x="-36" y="-5" width="72" height="10" rx="1"/><rect class="pier-h" x="-26" y="-16" width="14" height="9"/><circle class="pier-c" cx="16" cy="-10" r="3.2"/><path class="pier-j" d="M16 -10l14 -8"/><path class="pier-b" d="M-30 5v6M-10 5v6M10 5v6M30 5v6M-30 -5v-6M10 -5v-6"/></g><text class="lbl nb-wlbl" x="592.9" y="123.1" text-anchor="middle" data-i18n="nbWD">BẾN D</text><g class="nb-wharf" data-w="E" transform="translate(900 215) rotate(20)"><rect class="pier" x="-36" y="-5" width="72" height="10" rx="1"/><rect class="pier-h" x="-26" y="-16" width="14" height="9"/><circle class="pier-c" cx="16" cy="-10" r="3.2"/><path class="pier-j" d="M16 -10l14 -8"/><path class="pier-b" d="M-30 5v6M-10 5v6M10 5v6M30 5v6M-30 -5v-6M10 -5v-6"/></g><text class="lbl nb-wlbl" x="910.9" y="187.9" text-anchor="middle" data-i18n="nbWE">BẾN E</text></g>
+<g class="nb-barges"><g class="nb" data-id="03" data-w="A" role="button" tabindex="0" aria-label="Sà lan 03" transform="translate(130.8 176)"><circle class="nb-hit" r="22"/><circle class="nb-ring" r="16"/><g transform="rotate(-35)"><use href="#barge-sym" class="along" transform="scale(.62)"/></g><text class="nb-tag" x="13.8" y="22.7" text-anchor="middle">SL-03</text><circle class="nb-dot" cx="18" cy="5.5" r="2.6"/></g><g class="nb" data-id="07" data-w="A" role="button" tabindex="0" aria-label="Sà lan 07" transform="translate(129.2 104)"><circle class="nb-hit" r="22"/><circle class="nb-ring" r="16"/><g transform="rotate(-35)"><use href="#barge-sym" class="along" transform="scale(.62)"/></g><text class="nb-tag" x="-13.8" y="-16.7" text-anchor="middle">SL-07</text><circle class="nb-dot" cx="2" cy="-17.5" r="2.6"/></g><g class="nb" data-id="12" data-w="B" role="button" tabindex="0" aria-label="Sà lan 12" transform="translate(341.5 130)"><circle class="nb-hit" r="22"/><circle class="nb-ring" r="16"/><g transform="rotate(-20)"><use href="#barge-sym" class="along" transform="scale(.62)"/></g><text class="nb-tag" x="8.2" y="25.6" text-anchor="middle">SL-12</text><circle class="nb-dot" cx="14.8" cy="7.2" r="2.6"/></g><g class="nb" data-id="15" data-w="B" role="button" tabindex="0" aria-label="Sà lan 15" transform="translate(358.5 60)"><circle class="nb-hit" r="22"/><circle class="nb-ring" r="16"/><g transform="rotate(-20)"><use href="#barge-sym" class="along" transform="scale(.62)"/></g><text class="nb-tag" x="-8.2" y="-19.6" text-anchor="middle">SL-15</text><circle class="nb-dot" cx="5.2" cy="-19.2" r="2.6"/></g><g class="nb" data-id="21" data-w="C" role="button" tabindex="0" aria-label="Sà lan 21" transform="translate(486.4 273.5)"><circle class="nb-hit" r="22"/><circle class="nb-ring" r="16"/><g transform="rotate(12)"><use href="#barge-sym" class="along" transform="scale(.62)"/></g><text class="nb-tag" x="-5" y="26.5" text-anchor="middle">SL-21</text><circle class="nb-dot" cx="7.1" cy="7.7" r="2.6"/></g><g class="nb" data-id="22" data-w="C" role="button" tabindex="0" aria-label="Sà lan 22" transform="translate(541.2 285.2)"><circle class="nb-hit" r="22"/><circle class="nb-ring" r="16"/><g transform="rotate(12)"><use href="#barge-sym" class="along" transform="scale(.62)"/></g><text class="nb-tag" x="-5" y="26.5" text-anchor="middle">SL-22</text><circle class="nb-dot" cx="7.1" cy="7.7" r="2.6"/></g><g class="nb" data-id="30" data-w="D" role="button" tabindex="0" aria-label="Sà lan 30" transform="translate(635.5 143)"><circle class="nb-hit" r="22"/><circle class="nb-ring" r="16"/><g transform="rotate(-10)"><use href="#barge-sym" class="along" transform="scale(.62)"/></g><text class="nb-tag" x="4.2" y="26.6" text-anchor="middle">SL-30</text><circle class="nb-dot" cx="12.4" cy="7.8" r="2.6"/></g><g class="nb" data-id="31" data-w="D" role="button" tabindex="0" aria-label="Sà lan 31" transform="translate(664.5 77)"><circle class="nb-hit" r="22"/><circle class="nb-ring" r="16"/><g transform="rotate(-10)"><use href="#barge-sym" class="along" transform="scale(.62)"/></g><text class="nb-tag" x="-4.2" y="-20.6" text-anchor="middle">SL-31</text><circle class="nb-dot" cx="7.6" cy="-19.8" r="2.6"/></g><g class="nb" data-id="44" data-w="E" role="button" tabindex="0" aria-label="Sà lan 44" transform="translate(863.4 233.6)"><circle class="nb-hit" r="22"/><circle class="nb-ring" r="16"/><g transform="rotate(20)"><use href="#barge-sym" class="along" transform="scale(.62)"/></g><text class="nb-tag" x="-8.2" y="25.6" text-anchor="middle">SL-44</text><circle class="nb-dot" cx="5.2" cy="7.2" r="2.6"/></g><g class="nb" data-id="45" data-w="E" role="button" tabindex="0" aria-label="Sà lan 45" transform="translate(916.1 252.8)"><circle class="nb-hit" r="22"/><circle class="nb-ring" r="16"/><g transform="rotate(20)"><use href="#barge-sym" class="along" transform="scale(.62)"/></g><text class="nb-tag" x="-8.2" y="25.6" text-anchor="middle">SL-45</text><circle class="nb-dot" cx="5.2" cy="7.2" r="2.6"/></g></g>
+<g class="nb-movers"><g class="nb-mover" id="nbMover1" data-w="B" data-dir="1"><g class="mv-body"><use href="#barge-sym" transform="scale(.6)"/></g><text class="mv-tag" x="13" y="-11">SL-09</text></g><g class="nb-mover" id="nbMover2" data-w="E" data-dir="-1"><g class="mv-body"><use href="#barge-sym" transform="scale(.6)"/></g><text class="mv-tag" x="13" y="-11">SL-27</text></g></g>
+</svg>
+        <p class="note" data-i18n="illus">Sơ đồ minh hoạ</p>
+      </div>
+      <aside class="net-card lacq" id="netCard" aria-live="polite" data-reveal>
+        <div class="lq-h"><span data-i18n="ncH">Hồ sơ sà lan</span><span class="tag" data-i18n="sample">Minh hoạ</span></div>
+        <div class="nc-body">
+          <p class="nc-name"><span class="nc-id num">Sà lan 03</span><span class="nc-wharf" id="ncWharf">Bến A</span></p>
+          <p class="nc-owner" id="ncOwner">Hộ tư nhân</p>
+          <dl class="nc-grid">
+            <div><dt data-i18n="pfCap">Tải trọng</dt><dd class="num" id="ncCap">1.600 tấn</dd></div>
+            <div><dt data-i18n="pfDraft">Sức chìm</dt><dd class="num" id="ncDr">3,1 m</dd></div>
+            <div><dt data-i18n="pfReg">Đăng kiểm</dt><dd id="ncReg"><i class="ok"></i><span data-i18n="checked">Đã kiểm tra</span> <small class="num" id="ncRegV">· đến 03/2027</small></dd></div>
+            <div><dt data-i18n="pfIns">Bảo hiểm</dt><dd id="ncIns"><i class="ok"></i><span data-i18n="checked">Đã kiểm tra</span> <small class="num" id="ncInsV">· đến 11/2026</small></dd></div>
+          </dl>
+          <div class="nc-trips"><span data-i18n="ncTrips">Chuyến qua hệ thống</span><b class="num" id="ncTrips">23</b></div>
+          <p class="nc-sub" data-i18n="ncLast">Chuyến gần nhất</p>
+          <ol class="nc-last num" id="ncLast">
+            <li><span>02/10</span><span>MV Sample Star</span><span>1.550 tấn</span></li>
+            <li><span>27/09</span><span>MV Sample Bay</span><span>1.480 tấn</span></li>
+            <li><span>19/09</span><span>MV Sample Star</span><span>1.600 tấn</span></li>
+          </ol>
+        </div>
+        <p class="nc-hint" data-i18n="ncHint">Rê chuột hoặc bấm vào một sà lan trên hải đồ để xem hồ sơ.</p>
+      </aside>
+    </div>
+    <ul class="legend" data-reveal>
+      <li><i class="lg-pt"></i><span data-i18n="lgNb">Chấm sáng: sà lan đã kiểm tra giấy tờ</span></li>
+      <li><i class="lg-ring"></i><span data-i18n="lgSel">Vòng tròn: sà lan đang xem hồ sơ</span></li>
+      <li><i class="lg-sl"></i><span data-i18n="lgTrip">Nét liền: các chuyến sà lan đó đã chạy ra khu chuyển tải</span></li>
+      <li class="note" data-i18n="netNote">Minh hoạ</li>
+    </ul>
+    <script type="application/json" id="netData">{"anchor":[760,520],"wharves":{"A":{"pos":[130,140]},"B":{"pos":[350,95]},"C":{"pos":[520,250]},"D":{"pos":[650,110]},"E":{"pos":[900,215]}},"barges":[{"id":"03","w":"A","cap":1600,"dr":3.1,"owner":0,"trips":23,"reg":"03/2027","ins":"11/2026","last":[["02/10","MV Sample Star",1550],["27/09","MV Sample Bay",1480],["19/09","MV Sample Star",1600]]},{"id":"07","w":"A","cap":1450,"dr":2.9,"owner":1,"trips":41,"reg":"08/2027","ins":"02/2027","last":[["04/10","MV Sample Moon",1420],["30/09","MV Sample Star",1450],["24/09","MV Sample Bay",1390]]},{"id":"12","w":"B","cap":1800,"dr":3.4,"owner":1,"trips":17,"reg":"12/2026","ins":"06/2027","last":[["01/10","MV Sample Bay",1760],["22/09","MV Sample Moon",1800],["12/09","MV Sample Star",1700]]},{"id":"15","w":"B","cap":1200,"dr":2.8,"owner":0,"trips":9,"reg":"05/2027","ins":"05/2027","last":[["03/10","MV Sample Star",1180],["25/09","MV Sample Bay",1200],["15/09","MV Sample Moon",1150]]},{"id":"21","w":"C","cap":1500,"dr":3.0,"owner":2,"trips":32,"reg":"01/2027","ins":"09/2026","last":[["05/10","MV Sample Moon",1500],["29/09","MV Sample Star",1460],["21/09","MV Sample Bay",1500]]},{"id":"22","w":"C","cap":1350,"dr":2.9,"owner":2,"trips":28,"reg":"10/2027","ins":"04/2027","last":[["02/10","MV Sample Bay",1300],["26/09","MV Sample Moon",1350],["18/09","MV Sample Star",1320]]},{"id":"30","w":"D","cap":1700,"dr":3.3,"owner":1,"trips":14,"reg":"07/2027","ins":"01/2027","last":[["30/09","MV Sample Star",1680],["20/09","MV Sample Bay",1700],["09/09","MV Sample Moon",1650]]},{"id":"31","w":"D","cap":1250,"dr":2.8,"owner":0,"trips":11,"reg":"04/2027","ins":"12/2026","last":[["28/09","MV Sample Moon",1240],["17/09","MV Sample Star",1250],["06/09","MV Sample Bay",1200]]},{"id":"44","w":"E","cap":1650,"dr":3.2,"owner":2,"trips":36,"reg":"09/2027","ins":"03/2027","last":[["05/10","MV Sample Bay",1620],["28/09","MV Sample Star",1650],["20/09","MV Sample Moon",1600]]},{"id":"45","w":"E","cap":1400,"dr":3.0,"owner":0,"trips":19,"reg":"02/2027","ins":"08/2026","last":[["01/10","MV Sample Star",1380],["23/09","MV Sample Moon",1400],["13/09","MV Sample Bay",1360]]}]}</script>
+    <dl class="spec">
+      <div data-reveal><dt data-i18n="sp1t">Nguồn sà lan</dt><dd data-i18n="sp1">Bạn liên hệ được nhiều chủ sà lan hơn so với gọi qua một hai đại lý quen.</dd></div>
+      <div data-reveal><dt data-i18n="sp2t">Thời gian</dt><dd data-i18n="sp2">Sà lan đang rảnh và giá chào nằm cùng một chỗ, đỡ phải gọi điện qua lại.</dd></div>
+      <div data-reveal><dt data-i18n="sp3t">Độ tin cậy</dt><dd data-i18n="sp3">Giấy tờ sà lan được kiểm tra khi tham gia. Vị trí trên biển được đối chiếu, lịch sử chuyến được lưu lại.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<div class="coach" aria-hidden="true"><i></i></div>
+
+<!-- ───────── 04 · Chủ sà lan (sáng) ───────── -->
+<section class="owners tone-light" id="chu-sa-lan">
+  <div class="wrap o-grid">
+    <div class="o-copy">
+      <header class="sec-h" data-reveal>
+        <p class="eyebrow" data-i18n="oEb">Cho chủ sà lan</p>
+        <h2 class="h2" data-i18n="oH2">Sà lan đang nằm bến? Nhận thêm chuyến từ các tàu mẹ.</h2>
+      </header>
+      <ol class="o-list">
+        <li data-reveal><span class="num">01</span><p data-i18n="o1">Mỗi yêu cầu ghi rõ chuyển tải ở đâu, bao nhiêu tấn và hạn dỡ khi nào.</p></li>
+        <li data-reveal><span class="num">02</span><p data-i18n="o2">Giá bạn chào chỉ bên thuê thấy, chủ sà lan khác không xem được.</p></li>
+        <li data-reveal><span class="num">03</span><p data-i18n="o3">Khai hồ sơ sà lan một lần (tải trọng, sức chìm, đăng kiểm, bảo hiểm), lần sau không phải khai lại.</p></li>
+        <li data-reveal><span class="num">04</span><p data-i18n="o4">Mỗi chuyến chạy xong được ghi vào hồ sơ, chủ hàng lần sau nhìn vào là biết.</p></li>
+      </ol>
+      <a class="btn" href="#bat-dau" data-role="owner" data-reveal data-i18n="oCta">Đăng ký sà lan</a>
+    </div>
+    <div class="o-vis">
+      <figure class="asset o-photo" data-asset="A2">
+        <img src="assets/a2-handshake.webp" alt="Hai bên bắt tay sau khi chốt chuyến." data-i18n-attr="alt:a2alt" loading="lazy" onerror="this.remove()">
+        <figcaption class="asset-cap"><b>ASSET A2</b> · <span data-i18n="a2cap">Ảnh bắt tay giữa chủ sà lan và chủ hàng, nền trong suốt.</span></figcaption>
+      </figure>
+      <div class="lacq o-card" id="oCard">
+        <div class="lq-h"><span data-i18n="pfH">Hồ sơ sà lan</span><span class="tag" data-i18n="sample">Minh hoạ</span></div>
+        <dl class="prof">
+          <div><dt data-i18n="pfCap">Tải trọng</dt><dd class="num" data-i18n="pfCapV">1.200 tấn</dd></div>
+          <div><dt data-i18n="pfDraft">Sức chìm</dt><dd class="num" data-i18n="pfDraftV">3,2 m</dd></div>
+          <div><dt data-i18n="pfReg">Đăng kiểm</dt><dd data-i18n="checked">Đã kiểm tra</dd></div>
+          <div><dt data-i18n="pfIns">Bảo hiểm</dt><dd data-i18n="checked">Đã kiểm tra</dd></div>
+          <div><dt data-i18n="pfSt">Trạng thái</dt><dd data-i18n="pfStV">Rảnh từ 6 giờ sáng</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="coach" aria-hidden="true"><i></i></div>
+
+<!-- ───────── 05 · Nguyên tắc (tối) ───────── -->
+<section class="rules tone-dark" id="nguyen-tac">
+  <div class="wrap">
+    <header class="sec-h" data-reveal>
+      <p class="eyebrow" data-i18n="rEb">Cam kết</p>
+      <h2 class="h2" data-i18n="rH2">Bạn chỉ cần đặt. Phần còn lại là việc của chúng tôi.</h2>
+    </header>
+  </div>
+  <div class="deck-pin" id="deckPin">
+    <div class="wrap deck" id="deck">
+      <article class="dcard" style="--shade:#0F0F0E;--i:0">
+        <p class="dcard-n num"><span>01 / 05</span><span data-i18n="ck1n">Mạng lưới</span></p>
+        <h3 class="dcard-t"><span data-i18n="ck1a">Sà lan</span><span class="g" data-i18n="ck1b">đã kiểm tra.</span></h3>
+        <p class="dcard-p" data-i18n="ck1p">Mỗi sà lan tham gia đều được kiểm tra đăng kiểm, bảo hiểm, tải trọng và sức chìm trước khi nhận chuyến. Lịch sử từng chuyến được lưu lại để lần sau bạn chọn nhanh hơn.</p>
+        <ul class="dcard-chips"><li data-i18n="ck1c1">Đăng kiểm</li><li data-i18n="ck1c2">Bảo hiểm</li><li data-i18n="ck1c3">Tải trọng, sức chìm</li><li data-i18n="ck1c4">Lịch sử chuyến</li></ul>
+      </article>
+      <article class="dcard" style="--shade:#191918;--i:1">
+        <p class="dcard-n num"><span>02 / 05</span><span data-i18n="ck2n">Giá</span></p>
+        <h3 class="dcard-t"><span data-i18n="ck2a">Báo giá kín,</span><span class="g" data-i18n="ck2b">bạn chọn.</span></h3>
+        <p class="dcard-p" data-i18n="ck2p">Mỗi chủ sà lan báo giá riêng cho yêu cầu của bạn, không ai thấy giá của ai. Bạn so sánh trên cùng một bảng và chốt ngay tại đó, hợp đồng theo mẫu có sẵn.</p>
+        <ul class="dcard-chips"><li data-i18n="ck2c1">Báo giá kín</li><li data-i18n="ck2c2">So sánh một bảng</li><li data-i18n="ck2c3">Chốt trực tiếp</li><li data-i18n="ck2c4">Hợp đồng mẫu</li></ul>
+      </article>
+      <article class="dcard" style="--shade:#232322;--i:2">
+        <p class="dcard-n num"><span>03 / 05</span><span data-i18n="ck3n">Thủ tục</span></p>
+        <h3 class="dcard-t"><span data-i18n="ck3a">Thủ tục,</span><span class="g" data-i18n="ck3b">chúng tôi lo trọn.</span></h3>
+        <p class="dcard-p" data-i18n="ck3p">Bạn đặt chuyến, chúng tôi lo trọn phần thủ tục: lệnh điều động của Cảng vụ, hồ sơ sà lan, biên bản giao nhận và đối chiếu khối lượng. Mỗi bước đều có người theo.</p>
+        <ul class="dcard-chips"><li data-i18n="ck3c1">Lệnh điều động Cảng vụ</li><li data-i18n="ck3c2">Hồ sơ sà lan</li><li data-i18n="ck3c3">Biên bản giao nhận</li><li data-i18n="ck3c4">Đối chiếu khối lượng</li></ul>
+      </article>
+      <article class="dcard" style="--shade:#2E2E2C;--i:3">
+        <p class="dcard-n num"><span>04 / 05</span><span data-i18n="ck4n">Định vị</span></p>
+        <h3 class="dcard-t"><span data-i18n="ck4a">Vị trí</span><span class="g" data-i18n="ck4b">từng phút trên biển.</span></h3>
+        <p class="dcard-p" data-i18n="ck4p">Trên đoạn biển, GPS từ sà lan về mỗi phút một lần, bạn thấy chuyến đang ở đâu theo thời gian thực. Vào sông, hệ thống báo từng mốc: qua cửa sông, cập bến, bắt đầu dỡ, dỡ xong.</p>
+        <ul class="dcard-chips"><li data-i18n="ck4c1">GPS mỗi phút trên biển</li><li data-i18n="ck4c2">Mốc trên sông</li><li data-i18n="ck4c3">Thời gian làm hàng</li><li data-i18n="ck4c4">Báo chậm sớm</li></ul>
+      </article>
+      <article class="dcard" style="--shade:#393937;--i:4">
+        <p class="dcard-n num"><span>05 / 05</span><span data-i18n="ck5n">Đầu mối</span></p>
+        <h3 class="dcard-t"><span data-i18n="ck5a">Một đầu mối,</span><span class="g" data-i18n="ck5b">đến khi dỡ xong.</span></h3>
+        <p class="dcard-p" data-i18n="ck5p">Từ lúc tàu mẹ báo giờ đến cho tới khi tấn hàng cuối rời sà lan, bạn làm việc với một người phụ trách. Thiếu sà lan hay lệch giờ, chúng tôi báo trước để bạn chủ động.</p>
+        <ul class="dcard-chips"><li data-i18n="ck5c1">Một người phụ trách</li><li data-i18n="ck5c2">Báo trước khi lệch</li><li data-i18n="ck5c3">Theo đến biên bản cuối</li><li data-i18n="ck5c4">Tổng kết sau chuyến</li></ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<div class="coach" aria-hidden="true"><i></i></div>
+
+<!-- ───────── 06 · Bắt đầu (sáng) ───────── -->
+<section class="start tone-light" id="bat-dau">
+  <div class="wrap st-grid">
+    <div class="st-copy">
+      <header class="sec-h" data-reveal>
+        <p class="eyebrow" data-i18n="stEb">Bắt đầu</p>
+        <h2 class="h2" data-i18n="stH2">Tàu mẹ sắp tới của bạn về ngày nào?</h2>
+      </header>
+      <p class="lead" data-reveal data-i18n="stLead">Thời gian đầu, chúng tôi trực tiếp tìm sà lan cùng bạn cho từng tàu, chủ yếu qua điện thoại và nhóm chat. Làm tay trước để hiểu đúng công việc, rồi mới đưa lên phần mềm.</p>
+      <dl class="spec spec-light">
+        <div data-reveal><dt data-i18n="sc1t">Khu vực</dt><dd data-i18n="sc1">Quảng Ninh, Hải Phòng</dd></div>
+        <div data-reveal><dt data-i18n="sc2t">Mặt hàng</dt><dd data-i18n="sc2">Than và hàng rời chở boong hở</dd></div>
+        <div data-reveal><dt data-i18n="sc3t">Sắp nhận</dt><dd data-i18n="sc3">Clinker, xi măng rời, thạch cao, quặng</dd></div>
+        <div data-reveal><dt data-i18n="sc4t">Không nhận</dt><dd data-i18n="sc4">Container, hàng lỏng, hàng nguy hiểm</dd></div>
+      </dl>
+    </div>
+
+    <form class="form" id="leadForm" novalidate data-reveal>
+      <fieldset class="seg">
+        <legend data-i18n="fYou">Bạn là</legend>
+        <label><input type="radio" name="role" value="nha-may" checked><span data-i18n="fR1">Nhà máy, chủ hàng</span></label>
+        <label><input type="radio" name="role" value="dai-ly"><span data-i18n="fR2">Đại lý tàu biển</span></label>
+        <label><input type="radio" name="role" value="chu-sa-lan"><span data-i18n="fR3">Chủ sà lan</span></label>
+      </fieldset>
+      <div class="f-row">
+        <div class="f"><label for="fName" data-i18n="fName">Họ và tên</label><input id="fName" name="name" autocomplete="name" required aria-describedby="eName"><p class="err" id="eName"></p></div>
+        <div class="f"><label for="fCo" data-i18n="fCo">Công ty</label><input id="fCo" name="company" autocomplete="organization"></div>
+      </div>
+      <div class="f"><label for="fPhone" data-i18n="fPhone">Số điện thoại (có Zalo càng tốt)</label><input id="fPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required aria-describedby="ePhone"><p class="err" id="ePhone"></p></div>
+      <div class="f"><label for="fShip" id="fShipLbl" data-i18n="fShip2">Tên tàu mẹ, ngày dự kiến đến (nếu có)</label><input id="fShip" name="vessel"></div>
+      <div class="f"><label for="fNote" data-i18n="fNote">Ghi chú (không bắt buộc)</label><textarea id="fNote" name="note" rows="3"></textarea></div>
+      <button class="btn btn-block" type="submit" data-i18n="fSend">Gửi</button>
+      <p class="f-note" data-i18n="fPriv">Thông tin này chỉ dùng để gọi lại cho bạn.</p>
+      <p class="f-msg" id="fMsg" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<div class="coach" aria-hidden="true"><i></i></div>
+
+<!-- ───────── Footer (tối) ───────── -->
+<footer class="ftr tone-dark">
+  <div class="wrap">
+    <div class="ftr-mark-wrap"><span class="ftr-mark sr">Vessel Subnet</span><svg class="ftr-ship" viewBox="0 0 1600 520" role="img" aria-label="Vessel Subnet" focusable="false">
+  <defs>
+    <linearGradient id="sea-fade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".22" stop-color="#fff" stop-opacity="1"/><stop offset=".84" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <mask id="sea-mask"><rect x="-760" y="0" width="2660" height="520" fill="url(#sea-fade)"/><image href="assets/footer/hullmask.webp" x="64" y="111.3" width="1496" height="297.4" preserveAspectRatio="none"/></mask>
+  </defs>
+  <g class="sea" mask="url(#sea-mask)">
+    <g class="waves"><path class="wv" style="--L:260px;--T:14s;--o:0.09" d="M-840 44 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0"/><path class="wv" style="--L:220px;--T:12s;--o:0.13" d="M-840 92 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0"/><path class="wv" style="--L:190px;--T:10s;--o:0.19" d="M-840 122 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0"/><path class="wv" style="--L:190px;--T:10s;--o:0.21" d="M-840 398 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0 c23.8 -4 71.2 -4 95 0 c23.8 4 71.2 4 95 0"/><path class="wv" style="--L:220px;--T:12s;--o:0.15" d="M-840 430 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0 c27.5 -6 82.5 -6 110 0 c27.5 6 82.5 6 110 0"/><path class="wv" style="--L:260px;--T:14s;--o:0.11" d="M-840 472 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0 c32.5 -5 97.5 -5 130 0 c32.5 5 97.5 5 130 0"/><path class="wv" style="--L:280px;--T:16s;--o:0.07" d="M-840 506 c35 -4 105 -4 140 0 c35 4 105 4 140 0 c35 -4 105 -4 140 0 c35 4 105 4 140 0 c35 -4 105 -4 140 0 c35 4 105 4 140 0 c35 -4 105 -4 140 0 c35 4 105 4 140 0 c35 -4 105 -4 140 0 c35 4 105 4 140 0 c35 -4 105 -4 140 0 c35 4 105 4 140 0 c35 -4 105 -4 140 0 c35 4 105 4 140 0 c35 -4 105 -4 140 0 c35 4 105 4 140 0 c35 -4 105 -4 140 0 c35 4 105 4 140 0 c35 -4 105 -4 140 0 c35 4 105 4 140 0 c35 -4 105 -4 140 0 c35 4 105 4 140 0 c35 -4 105 -4 140 0 c35 4 105 4 140 0"/></g>
+    <g class="wake"><path class="wk" d="M74 294 L-760 589.3"/><path class="wk" d="M74 226 L-760 -69.3"/><path class="wk wk2" d="M68 260 H-760"/><path class="wk wk3" d="M64 200 c-70 -8 -140 12 -230 2 s-170 -16 -300 -4"/><path class="wk wk3" d="M64 320 c-70 8 -140 -12 -230 -2 s-170 16 -300 4"/></g>
+    <g class="bow-wave"><path class="bw" d="M1568 254 c-50 -30 -140 -44 -300 -52 s-200 10 -340 16"/><path class="bw" d="M1568 266 c-50 30 -140 44 -300 52 s-200 -10 -340 -16"/></g>
+  </g>
+  <g class="ship"><image href="assets/footer/logotype.webp" x="64" y="111.3" width="1496" height="297.4" preserveAspectRatio="none"/></g>
+</svg></div>
+    <div class="ftr-row">
+      <p class="ftr-tag" data-i18n="ftTag">Điều phối sà lan chuyển tải cho hàng rời.</p>
+      <nav class="ftr-nav" aria-label="Chân trang" data-i18n-attr="aria-label:navFoot">
+        <a href="#van-de" data-i18n="nav1">Vấn đề</a><a href="#cach-van-hanh" data-i18n="nav2">Cách làm</a><a href="#mang-luoi" data-i18n="nav3">Mạng lưới</a><a href="#chu-sa-lan" data-i18n="nav4">Chủ sà lan</a><a href="#nguyen-tac" data-i18n="nav5">Cam kết</a><a href="#bat-dau" data-i18n="navCta">Gửi yêu cầu</a>
+      </nav>
+    </div>
+    <div class="ftr-base"><span>© <span id="yr">2026</span> Vessel Subnet</span><span class="num">20°57′N · 107°04′E</span></div>
+  </div>
+</footer>
+
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="vendor/SplitText.min.js"></script>
+<script src="vendor/CustomEase.min.js"></script>
+<script src="vendor/lenis.min.js"></script>
+<script src="js/i18n.js?v=11"></script>
+<script src="js/main.js?v=29"></script>
+</body>
+</html>
