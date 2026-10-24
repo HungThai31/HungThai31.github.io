@@ -172,7 +172,7 @@ section.alt{background:var(--bg2)}
 .flow.wide .node{min-height:120px}
 .flow .wire{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .flow .nodes{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-.node{position:relative;padding:30px 4px 0;min-height:150px}
+.node{position:relative;padding:58px 4px 0;min-height:150px}
 .node .dot{position:absolute;left:50%;top:0;width:12px;height:12px;border-radius:50%;background:var(--panel);border:2px solid var(--line2);transform:translateX(-50%);transition:border-color .3s,box-shadow .3s,background .3s}
 .node.on .dot{border-color:var(--acc);background:var(--acc);box-shadow:0 0 18px rgba(61,107,255,.8)}
 .node i{display:block;font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.14em;margin-bottom:6px;font-style:normal;transition:color .3s}
@@ -716,10 +716,12 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
       cum=[0]; for(var i=1;i<pts.length;i++){cum[i]=cum[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);} total=cum[4];
       var d='M'+pts.map(function(p){return p[0]+' '+p[1];}).join(' L'); base.setAttribute('d',d); lit.setAttribute('d',d);
       lit.style.strokeDasharray=total; lit.style.strokeDashoffset=total;
-      var a=pts[2],b=pts[3],c=vertical?[a[0]+64,(a[1]+b[1])/2]:[(a[0]+b[0])/2,a[1]+58];
+      var a=pts[2],b=pts[3],c=vertical?[a[0]+36,(a[1]+b[1])/2]:[(a[0]+b[0])/2,a[1]+58];
       det.setAttribute('d','M'+a[0]+' '+a[1]+' Q'+c[0]+' '+c[1]+' '+b[0]+' '+b[1]); detL=det.getTotalLength();
-      tf.setAttribute('x',vertical?a[0]+14:(a[0]+b[0])/2-26); tf.setAttribute('y',vertical?(a[1]+b[1])/2-8:a[1]-10);
-      tm.setAttribute('x',vertical?c[0]-10:c[0]-26); tm.setAttribute('y',vertical?c[1]+4:c[1]+2);
+      var mx=(a[0]+b[0])/2;
+      tf.setAttribute('text-anchor','middle'); tm.setAttribute('text-anchor','middle');
+      tf.setAttribute('x',mx); tf.setAttribute('y',a[1]-11);
+      tm.setAttribute('x',mx); tm.setAttribute('y',a[1]+29+15);   /* just under the lowest point of the detour */
       tf.setAttribute('opacity',vertical?0:1); tm.setAttribute('opacity',vertical?0:1);
     }
     function at(s){var i=1;while(i<4&&s>cum[i])i++;var t=(s-cum[i-1])/(cum[i]-cum[i-1]||1);return [pts[i-1][0]+(pts[i][0]-pts[i-1][0])*t,pts[i-1][1]+(pts[i][1]-pts[i-1][1])*t];}
