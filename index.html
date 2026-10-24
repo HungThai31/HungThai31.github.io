@@ -166,12 +166,23 @@ section.alt{background:var(--bg2)}
 .vs .v{font-family:var(--disp);font-variation-settings:'wdth' 82,'wght' 800;font-size:clamp(26px,2.6vw,40px);line-height:1;color:var(--ink);letter-spacing:-.01em}
 .vs .v.k{color:var(--acc2)}
 .vs .l{font-size:13px;color:var(--mute);margin-top:6px}
-.steps5{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
-.steps5 div{background:var(--panel);padding:16px 14px}
-.steps5 i{display:block;font-family:var(--mono);font-size:11px;color:var(--acc2);letter-spacing:.14em;margin-bottom:10px;font-style:normal}
-.steps5 b{display:block;font-size:14px;font-weight:600;margin-bottom:4px}
-.steps5 span{font-size:12.5px;color:var(--mute);line-height:1.4}
-@media(max-width:760px){.steps5{grid-template-columns:1fr 1fr}}
+.flow{position:relative;border:1px solid var(--line);border-radius:6px;background:var(--panel);padding:22px 16px 16px;overflow:hidden}
+.flow.wide{margin-bottom:clamp(32px,4.5vw,60px);padding:26px 22px 18px}
+.flow.wide .node p{font-size:13.5px;max-width:30ch}
+.flow.wide .node{min-height:120px}
+.flow .wire{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.flow .nodes{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.node{position:relative;padding:30px 4px 0;min-height:150px}
+.node .dot{position:absolute;left:50%;top:0;width:12px;height:12px;border-radius:50%;background:var(--panel);border:2px solid var(--line2);transform:translateX(-50%);transition:border-color .3s,box-shadow .3s,background .3s}
+.node.on .dot{border-color:var(--acc);background:var(--acc);box-shadow:0 0 18px rgba(61,107,255,.8)}
+.node i{display:block;font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.14em;margin-bottom:6px;font-style:normal;transition:color .3s}
+.node b{display:block;font-size:14px;color:var(--ink2);margin-bottom:6px;transition:color .3s}
+.node p{font-size:12.5px;line-height:1.45;color:var(--mute);opacity:.25;transform:translateY(6px);transition:opacity .45s,transform .45s,color .3s}
+.node.on i,.node:hover i{color:var(--acc2)}.node.on b,.node:hover b{color:var(--ink)}.node.on p,.node:hover p{opacity:1;transform:none;color:var(--ink2)}
+.flow .legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.06em}
+.flow .legend .k{color:var(--acc2)}
+.flow .legend .replay{margin-left:auto;cursor:pointer;color:var(--ink2)}.flow .legend .replay:hover{color:var(--acc2)}
+@media(max-width:760px){.flow .nodes{grid-template-columns:1fr;gap:4px}.node{padding:4px 0 14px 28px;min-height:0}.node .dot{left:0;top:9px;transform:none}}
 .vid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .vid{position:relative;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:#000;aspect-ratio:16/9}
 .vid video{width:100%;height:100%;object-fit:cover}
@@ -382,6 +393,16 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
   <article class="chap" id="c02">
     <div class="kick rv"><b>02</b><span>Voice &amp; text agent</span><span class="tag proto">Working prototype</span><span>Built solo · one GPU · no cloud</span></div>
     <div class="result"><div class="num sm rv">~115 ms</div><p class="what split">to answer a routine request with no model call at all. Zero routing errors on that path.</p></div>
+    <div class="flow wide rv" id="flow"><svg class="wire" aria-hidden="true"></svg>
+          <div class="nodes">
+            <div class="node"><span class="dot"></span><i>01</i><b>Identify</b><p>The call comes in. The number matches a known caller, so the assistant greets them by name.</p></div>
+            <div class="node"><span class="dot"></span><i>02</i><b>Listen</b><p>“Who is my appraiser?” Speech becomes text, tuned so an address with pauses is not cut up.</p></div>
+            <div class="node"><span class="dot"></span><i>03</i><b>Route</b><p>Matched to the right action. Confident: answer now, no model. Unsure: ask the model.</p></div>
+            <div class="node"><span class="dot"></span><i>04</i><b>Act</b><p>Looks up only this caller’s orders. Ownership is checked before anything is read out.</p></div>
+            <div class="node"><span class="dot"></span><i>05</i><b>Speak</b><p>Reads the answer back: cached audio for fixed lines, live voice for everything else.</p></div>
+          </div>
+          <div class="legend"><span class="k">● fast path · ~115 ms</span><span>○ model path · ~485 ms</span><span class="replay" id="flow-replay">↻ replay</span></div>
+        </div>
     <div class="grid">
       <div>
         <div class="story rv">
@@ -415,8 +436,7 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
       </div>
       <div class="vis rv">
         <div class="vs"><div><div class="h k">No-model path</div><div class="v k" data-count="38.5" data-dec="1" data-suffix="%">0%</div><div class="l">of traffic</div></div><div><div class="h">Model path</div><div class="v" data-count="61.5" data-dec="1" data-suffix="%">0%</div><div class="l">of traffic</div></div><div><div class="h k">Accuracy</div><div class="v k" data-count="100" data-suffix="%">0%</div><div class="l">0 errors</div></div><div><div class="h">Accuracy</div><div class="v" data-count="75" data-suffix="%">0%</div><div class="l">every error lives here</div></div><div><div class="h k">Latency</div><div class="v k" data-count="115" data-prefix="~" data-suffix=" ms">~0 ms</div><div class="l">per decision</div></div><div><div class="h">Latency</div><div class="v" data-count="485" data-prefix="~" data-suffix=" ms">~0 ms</div><div class="l">per decision</div></div></div>
-        <div class="steps5"><div><i>01</i><b>Identify</b><span>caller from phone number, greet by name</span></div><div><i>02</i><b>Listen</b><span>VAD + Whisper, tuned for addresses</span></div><div><i>03</i><b>Route</b><span>retrieve, then entropy gate</span></div><div><i>04</i><b>Act</b><span>caller-scoped DB lookup</span></div><div><i>05</i><b>Speak</b><span>cached audio or live TTS</span></div></div>
-        <div class="vid2">
+                <div class="vid2">
           <div class="vid"><video controls preload="metadata" playsinline poster="assets/video/voice-call-demo.jpg" aria-label="Inbound call demo, 3 minutes 19 seconds. Personal details in the audio are muted."><source src="assets/video/voice-call-demo.mp4" type="video/mp4" /></video><div class="cap">Inbound · 3:19 · personal details muted</div></div>
           <div class="vid"><video controls preload="metadata" playsinline poster="assets/video/voicemail-detect.jpg" aria-label="Outbound call demo, 2 minutes 36 seconds. Personal details in the audio are muted."><source src="assets/video/voicemail-detect.mp4" type="video/mp4" /></video><div class="cap">Outbound · 2:36 · personal details muted</div></div>
         </div>
@@ -674,9 +694,53 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
       .to(paths,{strokeDashoffset:0,duration:1.1,stagger:.05,ease:'power2.inOut'},.2)
       .from(texts,{opacity:0,y:6,duration:.5,stagger:.05},.6);
   });
-  /* five-step strip lights in sequence with scroll */
-  document.querySelectorAll('.steps5').forEach(function(st){var cells=st.children;
-    ScrollTrigger.create({trigger:st,start:'top 85%',end:'top 35%',scrub:0.4,onUpdate:function(s){var n=Math.ceil(s.progress*cells.length);for(var i=0;i<cells.length;i++)cells[i].classList.toggle('on',i<n);},onLeave:function(){for(var i=0;i<cells.length;i++)cells[i].classList.add('on');}});});
+  /* one call, step by step: a packet travels the wire, each stage lights as it arrives,
+     and at Route the wire forks — the packet takes the fast path, a ghost takes the model path */
+  (function(){
+    var flow=document.getElementById('flow'); if(!flow) return;
+    var NS='http://www.w3.org/2000/svg', svg=flow.querySelector('.wire'), nodes=[].slice.call(flow.querySelectorAll('.node'));
+    function el(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e;}
+    var base=el('path',{fill:'none',stroke:'rgba(244,242,236,.16)','stroke-width':1.5}),
+        det=el('path',{fill:'none',stroke:'rgba(244,242,236,.22)','stroke-width':1.5,'stroke-dasharray':'3 4'}),
+        lit=el('path',{fill:'none',stroke:'#3D6BFF','stroke-width':2,'stroke-linecap':'round'}),
+        tf=el('text',{fill:'#6E92FF','font-size':'11','font-family':'JetBrains Mono,monospace'}),
+        tm=el('text',{fill:'#6B7079','font-size':'11','font-family':'JetBrains Mono,monospace'}),
+        gh=el('circle',{r:4,fill:'rgba(244,242,236,.45)',opacity:0}),
+        pk=el('circle',{r:5.5,fill:'#6E92FF'}), glow=el('circle',{r:12,fill:'rgba(61,107,255,.25)'});
+    tf.textContent='~115 ms'; tm.textContent='~485 ms';
+    var pts=[],cum=[0],total=0,vertical=false,detL=0;
+    function layout(){
+      var r=flow.getBoundingClientRect(); vertical=innerWidth<=760;
+      svg.setAttribute('viewBox','0 0 '+r.width+' '+r.height);
+      pts=nodes.map(function(n){var d=n.querySelector('.dot').getBoundingClientRect();return [d.left+d.width/2-r.left,d.top+d.height/2-r.top];});
+      cum=[0]; for(var i=1;i<pts.length;i++){cum[i]=cum[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);} total=cum[4];
+      var d='M'+pts.map(function(p){return p[0]+' '+p[1];}).join(' L'); base.setAttribute('d',d); lit.setAttribute('d',d);
+      lit.style.strokeDasharray=total; lit.style.strokeDashoffset=total;
+      var a=pts[2],b=pts[3],c=vertical?[a[0]+64,(a[1]+b[1])/2]:[(a[0]+b[0])/2,a[1]+58];
+      det.setAttribute('d','M'+a[0]+' '+a[1]+' Q'+c[0]+' '+c[1]+' '+b[0]+' '+b[1]); detL=det.getTotalLength();
+      tf.setAttribute('x',vertical?a[0]+14:(a[0]+b[0])/2-26); tf.setAttribute('y',vertical?(a[1]+b[1])/2-8:a[1]-10);
+      tm.setAttribute('x',vertical?c[0]-10:c[0]-26); tm.setAttribute('y',vertical?c[1]+4:c[1]+2);
+      tf.setAttribute('opacity',vertical?0:1); tm.setAttribute('opacity',vertical?0:1);
+    }
+    function at(s){var i=1;while(i<4&&s>cum[i])i++;var t=(s-cum[i-1])/(cum[i]-cum[i-1]||1);return [pts[i-1][0]+(pts[i][0]-pts[i-1][0])*t,pts[i-1][1]+(pts[i][1]-pts[i-1][1])*t];}
+    function put(c,p){if(!p||p[0]==null)return;c.setAttribute('cx',p[0]);c.setAttribute('cy',p[1]);}
+    function light(k){nodes.forEach(function(n,i){n.classList.toggle('on',i<=k);});}
+    layout(); put(pk,pts[0]); put(glow,pts[0]); light(-1);
+    if(reduce){light(4);lit.style.strokeDashoffset=0;put(pk,pts[4]);put(glow,pts[4]);return;}
+    var o={s:0},g={t:0};
+    var tl=gsap.timeline({repeat:-1,repeatDelay:1.6,paused:true,onRepeat:function(){light(-1);gh.setAttribute('opacity',0);}});
+    tl.call(function(){light(0);});
+    for(var k=1;k<5;k++){
+      tl.to(o,{s:cum[k],duration:1.0,ease:'power1.inOut',onUpdate:function(){var p=at(o.s);put(pk,p);put(glow,p);lit.style.strokeDashoffset=total-o.s;}},'+=0.9');
+      tl.call(light,[k]);
+      if(k===3){ /* the fork: ghost goes the long way round */
+        tl.fromTo(g,{t:0},{t:1,duration:2.2,ease:'power1.inOut',onStart:function(){gh.setAttribute('opacity',1);},onUpdate:function(){var p=det.getPointAtLength(g.t*detL);put(gh,[p.x,p.y]);},onComplete:function(){gsap.to(gh,{attr:{opacity:0},duration:.4});}},'<-1.0');
+      }
+    }
+    var on=false; new IntersectionObserver(function(en){on=en[0].isIntersecting; on?tl.play():tl.pause();},{threshold:.35}).observe(flow);
+    document.getElementById('flow-replay').addEventListener('click',function(){light(-1);gh.setAttribute('opacity',0);tl.restart();});
+    addEventListener('resize',function(){var s=o.s;layout();var p=at(s);put(pk,p);put(glow,p);lit.style.strokeDashoffset=total-s;});
+  })();
   /* statement scrub */
   var big=document.getElementById('big');
   big.innerHTML=big.innerHTML.replace(/<span class="k">([\s\S]*?)<\/span>/,function(_,t){return t.split(/\s+/).map(function(w){return '<span class="w k">'+w+'</span>';}).join(' ');}).replace(/(^|>)([^<]+)(?=<|$)/g,function(_,pre,t){return pre+t.split(/(\s+)/).map(function(w){return /\S/.test(w)?'<span class="w">'+w+'</span>':w;}).join('');});
