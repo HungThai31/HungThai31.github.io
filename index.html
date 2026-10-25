@@ -121,7 +121,8 @@ section.alt{background:var(--bg2)}
 .chap{padding:clamp(56px,7vw,110px) 0;border-top:1px solid var(--line)}
 .chap:first-of-type{border-top:0;padding-top:0}
 .chap .kick{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:26px}
-.chap .kick b{color:var(--acc2);font-weight:500;font-size:14px}
+.chap .title{display:flex;align-items:baseline;gap:16px;margin:0 0 14px;font-family:var(--disp);font-variation-settings:'wdth' 86,'wght' 760;font-size:clamp(22px,2.3vw,32px);line-height:1;letter-spacing:.01em;text-transform:uppercase;color:var(--ink)}
+.chap .title b{font-family:var(--mono);font-weight:500;font-size:14px;letter-spacing:.14em;color:var(--acc2)}
 .tag{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--line2);color:var(--ink2);padding:6px 10px;border-radius:999px}
 .tag.live{color:var(--acc2);border-color:rgba(110,146,255,.5)}
 .tag.proto{color:var(--ink);border-color:var(--line2)}
@@ -361,7 +362,8 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
 
   <!-- 01 -->
   <article class="chap" id="c01">
-    <div class="kick rv"><b>01</b><span>Email triage</span><span class="tag live">In production</span><span>US appraisal management company · 2023–2026</span></div>
+    <h3 class="title rv"><b>01</b>Email triage</h3>
+    <div class="kick rv"><span class="tag live">In production</span><span>US appraisal management company · 2023–2026</span></div>
     <div class="result"><div class="num rv" data-count="95" data-suffix="%">0%</div><p class="what split">of 700–1,300 daily emails handled without a person reading them. Up from 50–60%.</p></div>
     <div class="grid">
       <div>
@@ -391,7 +393,8 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
 
   <!-- 02 -->
   <article class="chap" id="c02">
-    <div class="kick rv"><b>02</b><span>Voice &amp; text agent</span><span class="tag proto">Working prototype</span><span>Built solo · one GPU · no cloud</span></div>
+    <h3 class="title rv"><b>02</b>Voice &amp; text agent</h3>
+    <div class="kick rv"><span class="tag proto">Working prototype</span><span>Built solo · one GPU · no cloud</span></div>
     <div class="result"><div class="num sm rv">~115 ms</div><p class="what split">to answer a routine request with no model call at all. Zero routing errors on that path.</p></div>
     <div class="flow wide rv" id="flow"><svg class="wire" aria-hidden="true"></svg>
           <div class="nodes">
@@ -446,7 +449,8 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
 
   <!-- 03 -->
   <article class="chap" id="c03">
-    <div class="kick rv"><b>03</b><span>Document routing</span><span class="tag live">In production</span><span>~10 report types</span></div>
+    <h3 class="title rv"><b>03</b>Document routing</h3>
+    <div class="kick rv"><span class="tag live">In production</span><span>~10 report types</span></div>
     <div class="result"><div class="num sm rv">90–98%</div><p class="what split">accuracy per class. Every incoming report lands in the right review queue by itself.</p></div>
     <div class="grid">
       <div>
@@ -466,7 +470,8 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
 
   <!-- 04 -->
   <article class="chap" id="c04">
-    <div class="kick rv"><b>04</b><span>Property photo check</span><span class="tag live">In production</span><span>500,000+ training images</span></div>
+    <h3 class="title rv"><b>04</b>Property photo check</h3>
+    <div class="kick rv"><span class="tag live">In production</span><span>500,000+ training images</span></div>
     <div class="result"><div class="num rv" data-count="54">0</div><p class="what split">photo classes checked on every report, each above 90% accuracy, before a human looks.</p></div>
     <div class="grid">
       <div>
@@ -484,7 +489,8 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
 
   <!-- 05 -->
   <article class="chap" id="c05">
-    <div class="kick rv"><b>05</b><span>Signature detection</span><span class="tag live">In production</span><span>First production project</span></div>
+    <h3 class="title rv"><b>05</b>Signature detection</h3>
+    <div class="kick rv"><span class="tag live">In production</span><span>First production project</span></div>
     <div class="result"><div class="num word rv">Caught at intake</div><p class="what split">Unsigned reports are stopped before they move downstream, instead of bouncing back later.</p></div>
     <div class="grid">
       <div>
@@ -503,7 +509,8 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
 
   <!-- 06 -->
   <article class="chap" id="c06">
-    <div class="kick rv"><b>06</b><span>Landing page</span><span class="tag">Design + build</span><span>Vessel Subnet · 2026</span></div>
+    <h3 class="title rv"><b>06</b>Landing page</h3>
+    <div class="kick rv"><span class="tag">Design + build</span><span>Vessel Subnet · 2026</span></div>
     <div class="result"><div class="num word rv">Design + build</div><p class="what split">A landing page for a barge-coordination platform, written in the language of the trade.</p></div>
     <div class="grid">
       <div>
