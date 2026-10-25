@@ -302,13 +302,13 @@ footer .fine{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
 .vs div{transition:background .3s}
 .vs div:hover{background:#141922}
 
-/* depth: one light source, grain, raised panels, far/near layers */
+/* depth: one light source, starfield behind, raised panels, far/near layers */
+#sky{position:fixed;inset:0;z-index:-1;pointer-events:none}
 .atmo{position:fixed;inset:0;z-index:100;pointer-events:none;overflow:hidden;mix-blend-mode:screen}
 .atmo i{position:absolute;display:block;border-radius:50%;will-change:transform}
 .atmo .g1{left:-18vw;top:-28vh;width:min(80vw,1100px);height:min(80vw,1100px);background:radial-gradient(closest-side,rgba(61,107,255,.16),rgba(61,107,255,.05) 45%,transparent)}
 .atmo .g2{right:-25vw;bottom:-30vh;width:min(70vw,900px);height:min(70vw,900px);background:radial-gradient(closest-side,rgba(244,242,236,.05),transparent)}
 .atmo .lamp{left:0;top:0;width:min(70vw,860px);height:min(70vw,860px);margin:calc(min(70vw,860px)/-2) 0 0 calc(min(70vw,860px)/-2);background:radial-gradient(closest-side,rgba(110,146,255,.09),rgba(110,146,255,.03) 45%,transparent);opacity:0;transition:opacity .6s}
-.grain{position:fixed;inset:0;z-index:101;pointer-events:none;opacity:.025;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0/180px 180px repeat}
 @media(hover:none){.atmo .lamp{display:none}}
 @media(max-width:760px){.atmo{mix-blend-mode:normal;opacity:.7}}
 .hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:28%;background:linear-gradient(transparent,rgba(8,9,11,.92));z-index:1;pointer-events:none}
@@ -331,7 +331,7 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
 </style>
 </head>
 <body>
-<div class="atmo" aria-hidden="true"><i class="g1"></i><i class="g2"></i><i class="lamp" id="lamp"></i></div><i class="grain" aria-hidden="true"></i>
+<div class="atmo" aria-hidden="true"><i class="g1"></i><i class="g2"></i><i class="lamp" id="lamp"></i></div><canvas id="sky" aria-hidden="true"></canvas>
 <a class="skip" href="#work">Skip to work</a>
 <div id="prog" aria-hidden="true"></div>
 <div class="cur" aria-hidden="true"></div><div class="cur-r" aria-hidden="true"><span>open</span></div>
@@ -623,6 +623,25 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
 <script>
 (function(){
   var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches, fine=matchMedia('(pointer:fine) and (hover:hover)').matches;
+/* the ground is deep space: a sparse starfield behind everything, a meteor now and then */
+(function(){
+  var cv=document.getElementById('sky'),ctx=cv.getContext('2d'),w=0,h=0,mobile=false,meteors=[],next=0,last=0,stars=[];
+  for(var i=0;i<140;i++) stars.push({nx:Math.random(),ny:Math.random(),r:.5+Math.random()*.9,a:.25+Math.random()*.55,p:Math.random()*6.28,s:.4+Math.random()*.8,d:.03+Math.random()*.09,c:Math.random()<.22?'#AFC4FF':'#F4F2EC'});
+  function size(){mobile=innerWidth<=760;var dpr=Math.min(devicePixelRatio||1,mobile?1.5:2);w=innerWidth;h=innerHeight;cv.width=w*dpr;cv.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);if(reduce)paint(0,0);}
+  function shoot(){var dir=Math.random()<.5?1:-1;meteors.push({x:w*.1+Math.random()*w*.8,y:Math.random()*h*.4,vx:dir*(620+Math.random()*300),vy:380+Math.random()*220,len:140+Math.random()*100,t:0,life:.75+Math.random()*.35});}
+  function paint(t,sy){ctx.clearRect(0,0,w,h);var n=mobile?70:stars.length;
+    for(var i=0;i<n;i++){var s=stars[i],y=(s.ny*h-sy*s.d)%h;if(y<0)y+=h;ctx.globalAlpha=reduce?s.a:s.a*(.7+.3*Math.sin(t*s.s+s.p));ctx.fillStyle=s.c;ctx.beginPath();ctx.arc(s.nx*w,y,s.r,0,6.283);ctx.fill();}}
+  function frame(ts){requestAnimationFrame(frame);if(mobile&&ts-last<30)return;var dt=Math.min((ts-last)/1000,.05);last=ts;paint(ts/1000,scrollY);
+    if(ts>next){shoot();next=ts+12000+Math.random()*13000;}
+    for(var k=meteors.length-1;k>=0;k--){var m=meteors[k];m.t+=dt;if(m.t>m.life){meteors.splice(k,1);continue;}
+      var x=m.x+m.vx*m.t,y=m.y+m.vy*m.t,n=Math.hypot(m.vx,m.vy),ux=m.vx/n,uy=m.vy/n,fade=Math.sin(m.t/m.life*Math.PI),g=ctx.createLinearGradient(x,y,x-ux*m.len,y-uy*m.len);
+      g.addColorStop(0,'rgba(244,242,236,'+.9*fade+')');g.addColorStop(1,'rgba(244,242,236,0)');
+      ctx.globalAlpha=1;ctx.strokeStyle=g;ctx.lineWidth=1.4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-ux*m.len,y-uy*m.len);ctx.stroke();}}
+  size();addEventListener('resize',size);
+  if(reduce)return;
+  next=performance.now()+3500+Math.random()*2500;requestAnimationFrame(frame);
+  window.sky={shoot:shoot};
+})();
   gsap.registerPlugin(ScrollTrigger,SplitText);
 
   /* marquee content (proof, not decoration) */
