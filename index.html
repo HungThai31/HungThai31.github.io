@@ -360,12 +360,23 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
 .flight.static .scrim,.flight.static .rail,.flight.static .hint,.flight.static .poster{display:none}
 .flight.static .fhead{position:static;padding:34px var(--gut) 18px}
 @media(max-width:760px){.flight .fhead .sm{display:none}}
+/* loading: the world arrives before the curtain lifts */
+html.loading{overflow:hidden}
+#loader{position:fixed;inset:0;z-index:500;background:var(--bg);display:grid;place-items:center;transition:transform .9s cubic-bezier(.76,0,.24,1)}
+#loader.done{transform:translateY(-101%)}
+#loader .ld{display:grid;justify-items:center;gap:18px;width:min(280px,70vw)}
+#loader .brand{margin-bottom:6px}
+#loader .bar{width:100%;height:2px;background:var(--line2);overflow:hidden}
+#loader .bar i{display:block;height:100%;width:100%;background:var(--acc);transform-origin:left;transform:scaleX(0);box-shadow:0 0 12px rgba(61,107,255,.8)}
+#loader .pct{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--mute);font-variant-numeric:tabular-nums}
+@media(prefers-reduced-motion:reduce){#loader{transition:none}}
 .rv{will-change:transform,opacity}
 .lines-mask .line{overflow:hidden;display:block}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.giant{background-position:0 0}}
 </style>
 </head>
 <body>
+<div id="loader" role="status" aria-live="polite"><div class="ld"><span class="brand"><i></i>Hung Thai</span><span class="eyebrow m">Loading the world</span><div class="bar"><i></i></div><span class="pct">0%</span></div></div>
 <div class="atmo" aria-hidden="true"><i class="g1"></i><i class="g2"></i><i class="lamp" id="lamp"></i></div><canvas id="sky" aria-hidden="true"></canvas>
 <a class="skip" href="#work">Skip to work</a>
 <div id="prog" aria-hidden="true"></div>
@@ -668,6 +679,30 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
 <script>
 (function(){
   var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches, fine=matchMedia('(pointer:fine) and (hover:hover)').matches;
+/* the loader: weighted items, real bytes for the big ones, a curtain that lifts when everything first-screen is here */
+var loader=(function(){
+  var el=document.getElementById('loader'), bar=el.querySelector('.bar i'), pct=el.querySelector('.pct'), items=[], done=false, t0=performance.now();
+  var seen=false; try{ seen=!!sessionStorage.getItem('hv'); }catch(e){}
+  document.documentElement.classList.add('loading');
+  function item(w){ var it={w:w,p:0}; items.push(it); return it; }
+  function render(){ var tw=0,tp=0; items.forEach(function(i){ tw+=i.w; tp+=i.w*i.p; }); var p=tw?tp/tw:1;
+    gsap.to(bar,{scaleX:p,duration:.5,ease:'power2.out',overwrite:true}); pct.textContent=Math.round(p*100)+'%'; if(p>=0.999&&!done) finish(); }
+  function finish(){ done=true; var wait=Math.max(0,(seen?600:1400)-(performance.now()-t0));
+    setTimeout(function(){ try{ sessionStorage.setItem('hv','1'); }catch(e){} el.classList.add('done'); document.documentElement.classList.remove('loading');
+      dispatchEvent(new Event('site:ready')); setTimeout(function(){ el.remove(); },1000); },wait); }
+  function track(promise,w){ var it=item(w); promise.then(function(){ it.p=1; render(); },function(){ it.p=1; render(); }); return it; }
+  function fetchBlob(url,w){ var it=item(w);
+    return fetch(url).then(function(r){ if(!r.ok) throw new Error(url); var total=+r.headers.get('content-length')||0;
+      if(!r.body||!total) return r.blob().then(function(b){ it.p=1; render(); return b; });
+      var reader=r.body.getReader(), chunks=[], got=0;
+      return (function pump(){ return reader.read().then(function(x){ if(x.done){ it.p=1; render(); return new Blob(chunks); }
+        chunks.push(x.value); got+=x.value.length; it.p=Math.min(1,got/total); render(); return pump(); }); })();
+    }).catch(function(e){ it.p=1; render(); throw e; }); }
+  setTimeout(function(){ if(!done){ items.forEach(function(i){ i.p=1; }); render(); } },12000);   /* never trap anyone */
+  return {item:item,track:track,fetch:fetchBlob,render:render};
+})();
+window.siteLoader=loader;
+loader.track(document.fonts?document.fonts.ready:Promise.resolve(),1);
 /* motion studies: fetch when near, play only while on screen, poster only under reduced motion */
 var lazyVideo=(function(){ if(reduce) return function(){};
   var io=new IntersectionObserver(function(en){en.forEach(function(e){var v=e.target;
@@ -703,7 +738,7 @@ document.querySelectorAll('video[data-src]').forEach(lazyVideo);
   /* 54-class grid */
   /* smooth scroll */
   var lenis=null;
-  if(!reduce&&window.Lenis){ lenis=new Lenis({lerp:0.1,smoothWheel:true}); lenis.on('scroll',ScrollTrigger.update); gsap.ticker.add(function(t){lenis.raf(t*1000);}); gsap.ticker.lagSmoothing(0); window.__lenis=lenis; }
+  if(!reduce&&window.Lenis){ lenis=new Lenis({lerp:0.1,smoothWheel:true}); lenis.on('scroll',ScrollTrigger.update); if(document.documentElement.classList.contains('loading')){ lenis.stop(); addEventListener('site:ready',function(){ lenis.start(); },{once:true}); } gsap.ticker.add(function(t){lenis.raf(t*1000);}); gsap.ticker.lagSmoothing(0); window.__lenis=lenis; }
   function go(el){ dispatchEvent(new Event('flight:release')); var y=el.getBoundingClientRect().top+scrollY-60; lenis?lenis.scrollTo(y):scrollTo({top:y,behavior:'smooth'}); }
   document.querySelectorAll('a[href^="#"]').forEach(function(a){ a.addEventListener('click',function(e){ var id=a.getAttribute('href'); if(id.length<2)return; var el=document.querySelector(id); if(!el)return; e.preventDefault(); go(el); }); });
 
@@ -755,10 +790,10 @@ document.querySelectorAll('video[data-src]').forEach(lazyVideo);
   /* Positions are measured once at creation; the Statement pin spacer and the
      late-arriving display font both move everything below. Re-measure after
      each of those, not just once. */
-  var splitDone=false;
+  var splitDone=false, heroLines=[];
   function doSplit(){ if(splitDone) return; splitDone=true;
     document.querySelectorAll('.split').forEach(function(h){
-      var sp=new SplitText(h,{type:'lines',mask:'lines'});
+      var sp=new SplitText(h,{type:'lines',mask:'lines'}); if(h.id==='h1') heroLines=sp.lines;
       gsap.from(sp.lines,{yPercent:108,duration:1.1,stagger:0.08,ease:'expo.out',scrollTrigger:{trigger:h,start:'top 88%',once:true}});
     });
     ScrollTrigger.sort(); ScrollTrigger.refresh(); }
@@ -858,8 +893,8 @@ document.querySelectorAll('video[data-src]').forEach(lazyVideo);
       return; }
     var clips={}, shown=null, k=0, busy=false, locked=false, passing=0, cool=0;
     function clip(id){ return clips[id]||(clips[id]={id:id,v:null,ready:false,loading:false}); }
-    function load(id){ var c=clip(id); if(c.loading) return c; c.loading=true;
-      fetch(base+id+'.mp4').then(function(r){return r.ok?r.blob():Promise.reject();}).then(function(b){
+    function load(id,w){ var c=clip(id); if(c.loading) return c; c.loading=true;
+      (w?loader.fetch(base+id+'.mp4',w):fetch(base+id+'.mp4').then(function(r){return r.ok?r.blob():Promise.reject();})).then(function(b){
         var v=document.createElement('video'); v.muted=true; v.playsInline=true; v.preload='auto'; v.setAttribute('muted',''); v.setAttribute('playsinline',''); v.src=URL.createObjectURL(b);
         v.addEventListener('canplaythrough',function(){c.ready=true;},{once:true}); stage.appendChild(v); c.v=v; }).catch(function(){c.loading=false;}); return c; }
     function ids(i){ var a=['loop-0'+(i+1)]; if(i<N-1) a.push('conn-0'+(i+1),'dive-0'+(i+2),'loop-0'+(i+2)); if(i>0) a.push('dive-0'+(i+1)+'-r','conn-0'+i+'-r','loop-0'+i); return a; }
@@ -890,7 +925,7 @@ document.querySelectorAll('video[data-src]').forEach(lazyVideo);
       onEnter:function(){ if(locked||Date.now()<passing) return; arrive(0,true); },
       onLeaveBack:function(){ if(locked||Date.now()<passing) return; arrive(N-1,false); }});
     addEventListener('scroll',function(){ if(locked&&Date.now()>passing&&Math.abs(scrollY-top())>innerHeight*0.6) unlock(); },{passive:true});
-    ScrollTrigger.create({trigger:sec,start:'top 170%',once:true,onEnter:function(){ ['dive-01','loop-01','conn-01','dive-02','loop-02'].forEach(load); }});
+    ['dive-01','loop-01','conn-01','dive-02','loop-02'].forEach(function(id){ load(id,3); });
     function step(down){ if(busy) return; if(down){ k===N-1?release(true):go(k+1); } else { k===0?release(false):go(k-1); } }
     addEventListener('wheel',function(e){ if(!locked) return; e.preventDefault(); if(Math.abs(e.deltaY)<4||Date.now()<cool) return; cool=Date.now()+350; step(e.deltaY>0); },{passive:false});
     addEventListener('keydown',function(e){ if(!locked) return; var d=e.key==='ArrowDown'||e.key==='PageDown'||e.key===' ', u=e.key==='ArrowUp'||e.key==='PageUp'; if(!d&&!u) return; e.preventDefault(); step(d); });
@@ -898,6 +933,10 @@ document.querySelectorAll('video[data-src]').forEach(lazyVideo);
     addEventListener('flight:release',function(){ passing=Date.now()+2000; if(locked){ locked=false; lenis.start(); } });
     window.flight={state:function(){ return {k:k,locked:locked,busy:busy,shown:shown&&shown.id,loaded:Object.keys(clips).filter(function(i){return clips[i].ready;})}; }};
   })();
+  /* the hero's entrance waits for the curtain */
+  addEventListener('site:ready',function(){ var h=document.querySelector('.hero'); if(!h||reduce) return;
+    if(heroLines.length) gsap.fromTo(heroLines,{yPercent:108},{yPercent:0,duration:1.1,stagger:.08,ease:'expo.out',overwrite:true});
+    gsap.fromTo(h.querySelectorAll('.rv'),{opacity:0,y:18},{opacity:1,y:0,duration:.7,stagger:.08,ease:'power2.out',delay:.3,overwrite:true}); },{once:true});
   /* statement scrub */
   var big=document.getElementById('big');
   big.innerHTML=big.innerHTML.replace(/<span class="k">([\s\S]*?)<\/span>/,function(_,t){return t.split(/\s+/).map(function(w){return '<span class="w k">'+w+'</span>';}).join(' ');}).replace(/(^|>)([^<]+)(?=<|$)/g,function(_,pre,t){return pre+t.split(/(\s+)/).map(function(w){return /\S/.test(w)?'<span class="w">'+w+'</span>':w;}).join('');});
@@ -914,7 +953,8 @@ document.querySelectorAll('video[data-src]').forEach(lazyVideo);
 /* Hero: the portrait, drawn in light. Particles gather into the face, breathe, react to the pointer, disperse on scroll. */
 (async()=>{
   const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches, hero=document.getElementById('hero'), cv=document.getElementById('hero-cv');
-  const fallback=()=>hero.classList.add('static');
+  const L=window.siteLoader, ready=L?L.item(3):{p:0}, flag=()=>{ready.p=1; L&&L.render();};
+  const fallback=()=>{hero.classList.add('static');flag();};
   if(!cv||reduce){fallback();return;}
   let THREE; try{THREE=await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');}catch(e){fallback();return;}
   let renderer; try{renderer=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:false,powerPreference:'high-performance'});}catch(e){fallback();return;}
@@ -945,7 +985,8 @@ document.querySelectorAll('video[data-src]').forEach(lazyVideo);
   size();addEventListener('resize',size);
   const target=new THREE.Vector2(1e5,1e5);const toWorld=(cx,cy)=>{const r=cv.getBoundingClientRect();if(cy<r.top||cy>r.bottom){target.set(1e5,1e5);return;}target.set(cx-r.left-r.width/2,-(cy-r.top-r.height/2));};
   addEventListener('pointermove',e=>toWorld(e.clientX,e.clientY),{passive:true});addEventListener('touchmove',e=>{const t=e.touches[0];if(t)toWorld(t.clientX,t.clientY);},{passive:true});addEventListener('pointerleave',()=>target.set(1e5,1e5));
-  gsap.to(U.uAssemble,{value:1,duration:2.6,ease:'expo.out',delay:0.15});
+  const assemble=()=>gsap.to(U.uAssemble,{value:1,duration:2.6,ease:'expo.out',delay:0.15});
+  flag(); if(document.documentElement.classList.contains('loading')) addEventListener('site:ready',assemble,{once:true}); else assemble();
   ScrollTrigger.create({trigger:hero,start:'top top',end:'bottom top',scrub:0.8,onUpdate:s=>{U.uDisperse.value=s.progress;}});
   let on=true,raf=0;const clock=new THREE.Clock();new IntersectionObserver(en=>{on=en[0].isIntersecting;if(on&&!raf)loop();},{threshold:0.02}).observe(cv);
   function loop(){if(!on||document.hidden){raf=0;return;}U.uTime.value=clock.getElapsedTime();U.uMouse.value.lerp(target,0.1);renderer.render(scene,cam);raf=requestAnimationFrame(loop);}
