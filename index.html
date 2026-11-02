@@ -346,6 +346,8 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
 .flight .rail{right:clamp(14px,2.4vw,30px);top:50%;transform:translateY(-50%);display:grid;gap:18px;padding:12px 6px}
 .flight .rail i{display:block;width:8px;height:8px;border-radius:50%;background:rgba(244,242,236,.25);cursor:pointer;transition:transform .3s,background .3s,box-shadow .3s}
 .flight .rail i.on{background:var(--acc);transform:scale(1.5);box-shadow:0 0 0 5px var(--accdim)}
+.flight .rail i.wait{background:var(--acc2);animation:fl-wait .9s ease-in-out infinite}
+@keyframes fl-wait{50%{transform:scale(2);opacity:.45}}
 .flight .hint{left:50%;bottom:20px;transform:translateX(-50%);font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);transition:opacity .4s}
 .flight .hint.off{opacity:0}
 /* phones, touch, reduced motion: the five stations stacked, each alive on its own */
@@ -908,10 +910,16 @@ document.querySelectorAll('video[data-src]').forEach(lazyVideo);
     function setCopy(i){ copies.forEach(function(c,j){ c.classList.toggle('on',j===i); }); dots.forEach(function(d,j){ d.classList.toggle('on',j===i); }); }
     function go(to){ if(busy||to<0||to>=N||to===k) return; var from=k, down=to>from;
       var a=down?clip('conn-0'+(from+1)):clip('dive-0'+(from+1)+'-r'), b=down?clip('dive-0'+(to+1)):clip('conn-0'+(to+1)+'-r');
-      busy=true; k=to; hint.classList.add('off'); warm(to);
-      if(!(a.ready&&b.ready)){ setCopy(to); loopAt(to); busy=false; return; }
-      copies[from].classList.remove('on'); show(a,false); play(a,OUT,function(){ show(b,true); play(b,IN,function(){ loopAt(to); busy=false; }); setCopy(to); });
+      busy=true; k=to; hint.classList.add('off'); load(a.id); load(b.id); warm(to); copies[from].classList.remove('on');
+      var t0=Date.now(); dots[to].classList.add('wait');
+      (function when(){   /* the flight waits for its own clips; on a slow line the target dot pulses meanwhile */
+        if(a.ready&&b.ready){ dots[to].classList.remove('wait'); show(a,false); play(a,OUT,function(){ show(b,true); play(b,IN,function(){ loopAt(to); busy=false; }); setCopy(to); }); }
+        else if(Date.now()-t0>12000){ dots[to].classList.remove('wait'); setCopy(to); loopAt(to); busy=false; }
+        else setTimeout(when,120); })();
     }
+    /* after the curtain, fetch the whole world in flight order, one clip at a time */
+    addEventListener('site:ready',function(){ var order=[]; for(var i=1;i<N;i++) order.push('conn-0'+i,'dive-0'+(i+1),'loop-0'+(i+1)); for(var j=N;j>=2;j--) order.push('dive-0'+j+'-r','conn-0'+(j-1)+'-r');
+      (function next(){ var id=order.shift(); if(!id) return; var c=load(id); var t=setInterval(function(){ if(c.ready||!c.loading){ clearInterval(t); next(); } },200); })(); },{once:true});
     function top(){ return sec.getBoundingClientRect().top+scrollY; }
     function lock(){ if(locked) return; locked=true; lenis.stop(); }
     function unlock(){ locked=false; passing=Date.now()+1800; lenis.start(); }
@@ -925,7 +933,7 @@ document.querySelectorAll('video[data-src]').forEach(lazyVideo);
       onEnter:function(){ if(locked||Date.now()<passing) return; arrive(0,true); },
       onLeaveBack:function(){ if(locked||Date.now()<passing) return; arrive(N-1,false); }});
     addEventListener('scroll',function(){ if(locked&&Date.now()>passing&&Math.abs(scrollY-top())>innerHeight*0.6) unlock(); },{passive:true});
-    ['dive-01','loop-01','conn-01','dive-02','loop-02'].forEach(function(id){ load(id,3); });
+    ['dive-01','loop-01','conn-01'].forEach(function(id){ load(id,3); });   /* the curtain waits for these; the rest streams in behind it */
     function step(down){ if(busy) return; if(down){ k===N-1?release(true):go(k+1); } else { k===0?release(false):go(k-1); } }
     addEventListener('wheel',function(e){ if(!locked) return; e.preventDefault(); if(Math.abs(e.deltaY)<4||Date.now()<cool) return; cool=Date.now()+350; step(e.deltaY>0); },{passive:false});
     addEventListener('keydown',function(e){ if(!locked) return; var d=e.key==='ArrowDown'||e.key==='PageDown'||e.key===' ', u=e.key==='ArrowUp'||e.key==='PageUp'; if(!d&&!u) return; e.preventDefault(); step(d); });
