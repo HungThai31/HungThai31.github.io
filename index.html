@@ -700,7 +700,7 @@ var loader=(function(){
       return (function pump(){ return reader.read().then(function(x){ if(x.done){ it.p=1; render(); return new Blob(chunks); }
         chunks.push(x.value); got+=x.value.length; it.p=Math.min(1,got/total); render(); return pump(); }); })();
     }).catch(function(e){ it.p=1; render(); throw e; }); }
-  setTimeout(function(){ if(!done){ items.forEach(function(i){ i.p=1; }); render(); } },12000);   /* never trap anyone */
+  setTimeout(function(){ if(!done){ items.forEach(function(i){ i.p=1; }); render(); } },90000);   /* never trap anyone */
   return {item:item,track:track,fetch:fetchBlob,render:render};
 })();
 window.siteLoader=loader;
@@ -887,7 +887,7 @@ document.querySelectorAll('video[data-src]').forEach(lazyVideo);
     var sec=document.getElementById('flight'); if(!sec) return;
     var stage=sec.querySelector('.stage'), poster=stage.querySelector('.poster'), copies=[].slice.call(sec.querySelectorAll('.fcopy')), dots=[].slice.call(sec.querySelectorAll('.rail i')), hint=sec.querySelector('.hint');
     var base=sec.getAttribute('data-clips'), N=5, OUT=2.2, IN=1.8;
-    var interactive=matchMedia('(min-width:861px) and (hover:hover) and (pointer:fine)').matches&&!reduce&&!!lenis;
+    var interactive=!matchMedia('(hover:none) and (pointer:coarse)').matches&&!reduce&&!!lenis; sec.dataset.mode=interactive?'flight':'static';
     if(!interactive){ sec.classList.add('static'); poster.remove();
       for(var i=0;i<N;i++){ var st=document.createElement('div'); st.className='st';
         st.innerHTML='<video muted loop playsinline preload="none" poster="'+base+'poster-0'+(i+1)+'.jpg" data-src="assets/video/case-0'+(i+1)+'.mp4" aria-hidden="true"></video>';
@@ -917,9 +917,6 @@ document.querySelectorAll('video[data-src]').forEach(lazyVideo);
         else if(Date.now()-t0>12000){ dots[to].classList.remove('wait'); setCopy(to); loopAt(to); busy=false; }
         else setTimeout(when,120); })();
     }
-    /* after the curtain, fetch the whole world in flight order, one clip at a time */
-    addEventListener('site:ready',function(){ var order=[]; for(var i=1;i<N;i++) order.push('conn-0'+i,'dive-0'+(i+1),'loop-0'+(i+1)); for(var j=N;j>=2;j--) order.push('dive-0'+j+'-r','conn-0'+(j-1)+'-r');
-      (function next(){ var id=order.shift(); if(!id) return; var c=load(id); var t=setInterval(function(){ if(c.ready||!c.loading){ clearInterval(t); next(); } },200); })(); },{once:true});
     function top(){ return sec.getBoundingClientRect().top+scrollY; }
     function lock(){ if(locked) return; locked=true; lenis.stop(); }
     function unlock(){ locked=false; passing=Date.now()+1800; lenis.start(); }
@@ -933,7 +930,8 @@ document.querySelectorAll('video[data-src]').forEach(lazyVideo);
       onEnter:function(){ if(locked||Date.now()<passing) return; arrive(0,true); },
       onLeaveBack:function(){ if(locked||Date.now()<passing) return; arrive(N-1,false); }});
     addEventListener('scroll',function(){ if(locked&&Date.now()>passing&&Math.abs(scrollY-top())>innerHeight*0.6) unlock(); },{passive:true});
-    ['dive-01','loop-01','conn-01'].forEach(function(id){ load(id,3); });   /* the curtain waits for these; the rest streams in behind it */
+    /* the curtain waits for the whole world: every dive, loop and connector, forward and back */
+    (function(){ var all=['dive-01','loop-01']; for(var i=1;i<N;i++) all.push('conn-0'+i,'dive-0'+(i+1),'loop-0'+(i+1)); for(var j=N;j>=2;j--) all.push('dive-0'+j+'-r','conn-0'+(j-1)+'-r'); all.forEach(function(id){ load(id,2); }); })();
     function step(down){ if(busy) return; if(down){ k===N-1?release(true):go(k+1); } else { k===0?release(false):go(k-1); } }
     addEventListener('wheel',function(e){ if(!locked) return; e.preventDefault(); if(Math.abs(e.deltaY)<4||Date.now()<cool) return; cool=Date.now()+350; step(e.deltaY>0); },{passive:false});
     addEventListener('keydown',function(e){ if(!locked) return; var d=e.key==='ArrowDown'||e.key==='PageDown'||e.key===' ', u=e.key==='ArrowUp'||e.key==='PageUp'; if(!d&&!u) return; e.preventDefault(); step(d); });
