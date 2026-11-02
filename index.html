@@ -333,6 +333,8 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
 .flight .scene img,.flight .scene video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 46%}
 .flight .scene img{transform:scale(var(--z,1.03));transition:opacity .4s}
 .flight .scene.live img{opacity:0}
+.flight .scene video.loop{opacity:0;transition:opacity .5s;z-index:2}
+.flight .scene.rest video.loop{opacity:1}
 .flight .scrim{pointer-events:none;background:linear-gradient(90deg,rgba(8,9,11,.82),rgba(8,9,11,.3) 46%,transparent 68%),linear-gradient(0deg,rgba(8,9,11,.75),transparent 42%),linear-gradient(180deg,rgba(8,9,11,.6),transparent 30%)}
 .flight .fhead,.flight .fcopy,.flight .rail,.flight .hint{position:absolute;z-index:40}
 .flight .scrim{z-index:30}
@@ -404,15 +406,15 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
 <!-- THE FLIGHT: five stations, one camera, scroll drives time -->
 <section class="flight" id="flight" aria-label="The five systems as one world">
   <div class="stage">
-    <div class="scene" data-k="0" data-clip="assets/world/dive-01.mp4"><img src="assets/world/poster-01.jpg" alt="" decoding="async" loading="lazy"></div>
+    <div class="scene" data-k="0" data-clip="assets/world/dive-01.mp4" data-loop="assets/world/loop-01.mp4"><img src="assets/world/poster-01.jpg" alt="" decoding="async" loading="lazy"></div>
     <div class="scene conn" data-k="0" data-clip="assets/world/conn-01.mp4"><img src="assets/world/poster-02.jpg" alt="" decoding="async" loading="lazy"></div>
-    <div class="scene" data-k="1" data-clip="assets/world/dive-02.mp4"><img src="assets/world/poster-02.jpg" alt="" decoding="async" loading="lazy"></div>
+    <div class="scene" data-k="1" data-clip="assets/world/dive-02.mp4" data-loop="assets/world/loop-02.mp4"><img src="assets/world/poster-02.jpg" alt="" decoding="async" loading="lazy"></div>
     <div class="scene conn" data-k="1" data-clip="assets/world/conn-02.mp4"><img src="assets/world/poster-03.jpg" alt="" decoding="async" loading="lazy"></div>
-    <div class="scene" data-k="2" data-clip="assets/world/dive-03.mp4"><img src="assets/world/poster-03.jpg" alt="" decoding="async" loading="lazy"></div>
+    <div class="scene" data-k="2" data-clip="assets/world/dive-03.mp4" data-loop="assets/world/loop-03.mp4"><img src="assets/world/poster-03.jpg" alt="" decoding="async" loading="lazy"></div>
     <div class="scene conn" data-k="2" data-clip="assets/world/conn-03.mp4"><img src="assets/world/poster-04.jpg" alt="" decoding="async" loading="lazy"></div>
-    <div class="scene" data-k="3" data-clip="assets/world/dive-04.mp4"><img src="assets/world/poster-04.jpg" alt="" decoding="async" loading="lazy"></div>
+    <div class="scene" data-k="3" data-clip="assets/world/dive-04.mp4" data-loop="assets/world/loop-04.mp4"><img src="assets/world/poster-04.jpg" alt="" decoding="async" loading="lazy"></div>
     <div class="scene conn" data-k="3" data-clip="assets/world/conn-04.mp4"><img src="assets/world/poster-05.jpg" alt="" decoding="async" loading="lazy"></div>
-    <div class="scene" data-k="4" data-clip="assets/world/dive-05.mp4"><img src="assets/world/poster-05.jpg" alt="" decoding="async" loading="lazy"></div>
+    <div class="scene" data-k="4" data-clip="assets/world/dive-05.mp4" data-loop="assets/world/loop-05.mp4"><img src="assets/world/poster-05.jpg" alt="" decoding="async" loading="lazy"></div>
   </div>
   <div class="scrim" aria-hidden="true"></div>
   <div class="fhead"><span class="eyebrow">The work, as one world</span><span class="sm">Five systems for one client. Scroll to fly through them.</span></div>
@@ -847,7 +849,7 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
   (function(){
     var sec=document.getElementById('flight'); if(!sec) return;
     var scenes=[].slice.call(sec.querySelectorAll('.scene')), copies=[].slice.call(sec.querySelectorAll('.fcopy')), dots=[].slice.call(sec.querySelectorAll('.rail i'));
-    var segs=scenes.map(function(el){return {el:el,conn:el.classList.contains('conn'),k:el.getAttribute('data-k')|0,src:el.getAttribute('data-clip'),w:el.classList.contains('conn')?0.7:1,v:null,ready:false,cur:0,tgt:0,loading:false};});
+    var segs=scenes.map(function(el){return {el:el,conn:el.classList.contains('conn'),k:el.getAttribute('data-k')|0,src:el.getAttribute('data-clip'),loop:el.getAttribute('data-loop'),lv:null,lready:false,w:el.classList.contains('conn')?0.7:1,v:null,ready:false,cur:0,tgt:0,loading:false};});
     var total=segs.reduce(function(a,s){return a+s.w;},0), off=0; segs.forEach(function(s){s.a=off/total;off+=s.w;s.b=off/total;});
     var coarse=matchMedia('(hover:none) and (pointer:coarse)').matches, FADE=0.012, p=0, armed=false;
     function load(s){ if(reduce||s.loading||!s.src) return; s.loading=true;
@@ -856,6 +858,13 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
         v.src=URL.createObjectURL(b); v.addEventListener('loadedmetadata',function(){s.ready=true;});
         v.addEventListener('seeked',function(){s.el.classList.add('live');},{once:true});
         s.el.appendChild(v); s.v=v; }).catch(function(){s.loading=false;}); }
+    function loadLoop(s){ if(reduce||!s.loop||s.lv) return; s.lv=true;
+      fetch(s.loop).then(function(r){return r.ok?r.blob():Promise.reject();}).then(function(b){
+        var v=document.createElement('video'); v.className='loop'; v.muted=true; v.loop=true; v.playsInline=true; v.preload='auto'; v.setAttribute('muted',''); v.setAttribute('playsinline','');
+        v.src=URL.createObjectURL(b); v.addEventListener('canplay',function(){s.lready=true;apply();},{once:true}); s.el.appendChild(v); s.lv=v; }).catch(function(){s.lv=null;}); }
+    /* resting at a station: the scrub frame hands over to a loop that starts on that same frame */
+    var restTimer=null, resting=null;
+    function leaveRest(){ if(!resting) return; var r=resting; resting=null; r.el.classList.remove('rest'); setTimeout(function(){ if(!r.el.classList.contains('rest')&&r.lv&&r.lv.pause) r.lv.pause(); },550); }
     function apply(){
       var ci=0; segs.forEach(function(s,i){ if(p>=s.a) ci=i; });
       segs.forEach(function(s,i){
@@ -864,6 +873,9 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
         s.el.style.opacity=op; s.el.style.zIndex=i===ci?20:10+Math.round(op*5);
         if(!s.ready) s.el.style.setProperty('--z',(1.03+local*0.1).toFixed(3));
       });
+      leaveRest(); clearTimeout(restTimer);
+      var cur=segs[ci];
+      if(!cur.conn&&cur.tgt>=0.96&&cur.lready){ restTimer=setTimeout(function(){ resting=cur; try{cur.lv.currentTime=0;}catch(e){} var pr=cur.lv.play(); if(pr&&pr.catch) pr.catch(function(){}); cur.el.classList.add('rest'); },250); }
       var c=segs[ci], k=c.conn&&c.tgt>0.5?c.k+1:c.k;
       copies.forEach(function(el,i){ el.classList.toggle('on',i===k); });
       dots.forEach(function(d,i){ d.classList.toggle('on',i===k); });
@@ -877,7 +889,7 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
         if(Math.abs(s.v.currentTime-t)>eps){ try{ s.v.currentTime=t; }catch(e){} } });
       requestAnimationFrame(tick);
     }
-    function arm(){ if(armed) return; armed=true; segs.forEach(load); }
+    function arm(){ if(armed) return; armed=true; segs.forEach(function(s){ load(s); loadLoop(s); }); }
     ScrollTrigger.create({trigger:sec,start:'top top',end:'+='+Math.round(total*90)+'%',pin:true,scrub:true,anticipatePin:1,onUpdate:function(st){p=st.progress;apply();},onToggle:function(st){if(st.isActive)arm();}});
     ScrollTrigger.create({trigger:sec,start:'top 160%',once:true,onEnter:arm});
     if(coarse) addEventListener('touchstart',function(){ segs.forEach(function(s){ if(s.v){ var pr=s.v.play(); if(pr&&pr.then) pr.then(function(){s.v.pause();}).catch(function(){}); } }); },{once:true,passive:true});
