@@ -884,7 +884,7 @@ document.querySelectorAll('video[data-src]').forEach(lazyVideo);
   (function(){
     var sec=document.getElementById('flight'); if(!sec) return;
     var stage=sec.querySelector('.stage'), poster=stage.querySelector('.poster'), copies=[].slice.call(sec.querySelectorAll('.fcopy')), dots=[].slice.call(sec.querySelectorAll('.rail i')), hint=sec.querySelector('.hint');
-    var base=sec.getAttribute('data-clips'), N=5, RATE=1.35;
+    var base=sec.getAttribute('data-clips'), N=5, OUT=2.2, IN=1.8;
     var interactive=matchMedia('(min-width:861px) and (hover:hover) and (pointer:fine)').matches&&!reduce&&!!lenis;
     if(!interactive){ sec.classList.add('static'); poster.remove();
       for(var i=0;i<N;i++){ var st=document.createElement('div'); st.className='st';
@@ -910,14 +910,14 @@ document.querySelectorAll('video[data-src]').forEach(lazyVideo);
       var a=down?clip('conn-0'+(from+1)):clip('dive-0'+(from+1)+'-r'), b=down?clip('dive-0'+(to+1)):clip('conn-0'+(to+1)+'-r');
       busy=true; k=to; hint.classList.add('off'); warm(to);
       if(!(a.ready&&b.ready)){ setCopy(to); loopAt(to); busy=false; return; }
-      copies[from].classList.remove('on'); show(a,false); play(a,RATE,function(){ show(b,true); play(b,RATE,function(){ loopAt(to); busy=false; }); setCopy(to); });
+      copies[from].classList.remove('on'); show(a,false); play(a,OUT,function(){ show(b,true); play(b,IN,function(){ loopAt(to); busy=false; }); setCopy(to); });
     }
     function top(){ return sec.getBoundingClientRect().top+scrollY; }
     function lock(){ if(locked) return; locked=true; lenis.stop(); }
     function unlock(){ locked=false; passing=Date.now()+1800; lenis.start(); }
     function release(down){ unlock(); lenis.scrollTo(down?top()+sec.offsetHeight:top()-innerHeight,{duration:1.1,force:true}); }
     function arrive(i,intro){ lock(); lenis.scrollTo(top(),{immediate:true,force:true}); warm(i); k=i; setCopy(i);
-      var d=clip('dive-01'); if(intro&&d.ready){ busy=true; show(d,true); play(d,1,function(){ loopAt(0); busy=false; }); } else loopAt(i); }
+      var d=clip('dive-01'); if(intro&&d.ready){ busy=true; show(d,true); play(d,1.4,function(){ loopAt(0); busy=false; }); } else loopAt(i); }
     /* the section is exactly one viewport tall, so its top meeting the viewport top is the one
        scroll position where it is fully in view: crossing it downward = arriving from above,
        crossing it upward = arriving from below */
