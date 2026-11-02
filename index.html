@@ -329,15 +329,14 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
 /* the flight */
 .flight{position:relative;height:100svh;overflow:hidden;background:#0B0D12;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .flight .stage,.flight .scrim{position:absolute;inset:0}
-.flight .scene{position:absolute;inset:0;opacity:0;will-change:opacity}
-.flight .scene img,.flight .scene video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 46%}
-.flight .scene img{transform:scale(var(--z,1.03));transition:opacity .4s}
-.flight .scene.live img{opacity:0}
-.flight .scene video.loop{opacity:0;transition:opacity .5s;z-index:2}
-.flight .scene.rest video.loop{opacity:1}
-.flight .scrim{pointer-events:none;background:linear-gradient(90deg,rgba(8,9,11,.82),rgba(8,9,11,.3) 46%,transparent 68%),linear-gradient(0deg,rgba(8,9,11,.75),transparent 42%),linear-gradient(180deg,rgba(8,9,11,.6),transparent 30%)}
+.flight .stage video,.flight .poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 46%}
+.flight .stage video{opacity:0;z-index:1;transition:opacity .25s}
+.flight .stage video.on{opacity:1;z-index:2}
+.flight .stage video.cut{transition:none}
+.flight .poster{z-index:3;transition:opacity .4s}
+.flight .poster.off{opacity:0;pointer-events:none}
+.flight .scrim{z-index:30;pointer-events:none;background:linear-gradient(90deg,rgba(8,9,11,.82),rgba(8,9,11,.3) 46%,transparent 68%),linear-gradient(0deg,rgba(8,9,11,.75),transparent 42%),linear-gradient(180deg,rgba(8,9,11,.6),transparent 30%)}
 .flight .fhead,.flight .fcopy,.flight .rail,.flight .hint{position:absolute;z-index:40}
-.flight .scrim{z-index:30}
 .flight .fhead{left:max(var(--gut),calc((100% - var(--max))/2));top:calc(70px + 5vh);display:grid;gap:8px}
 .flight .fcopy{left:max(var(--gut),calc((100% - var(--max))/2));bottom:clamp(44px,9vh,100px);max-width:min(560px,80vw);opacity:0;transform:translateY(14px);transition:opacity .45s,transform .45s;pointer-events:none}
 .flight .fcopy.on{opacity:1;transform:none}
@@ -345,11 +344,21 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
 .flight .fcopy h3{font-size:clamp(26px,3.3vw,48px);max-width:16ch}
 .flight .fcopy p{margin-top:14px;color:var(--ink2);font-size:clamp(15px,1.2vw,18px);max-width:42ch;line-height:1.5}
 .flight .rail{right:clamp(14px,2.4vw,30px);top:50%;transform:translateY(-50%);display:grid;gap:18px;padding:12px 6px}
-.flight .rail i{display:block;width:8px;height:8px;border-radius:50%;background:rgba(244,242,236,.25);transition:transform .3s,background .3s,box-shadow .3s}
+.flight .rail i{display:block;width:8px;height:8px;border-radius:50%;background:rgba(244,242,236,.25);cursor:pointer;transition:transform .3s,background .3s,box-shadow .3s}
 .flight .rail i.on{background:var(--acc);transform:scale(1.5);box-shadow:0 0 0 5px var(--accdim)}
 .flight .hint{left:50%;bottom:20px;transform:translateX(-50%);font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);transition:opacity .4s}
-.flight.flying .hint{opacity:0}
-@media(max-width:760px){.flight .fhead .sm,.flight .hint{display:none}.flight .fcopy{bottom:calc(36px + env(safe-area-inset-bottom))}.flight .fcopy h3{font-size:clamp(22px,6.5vw,30px)}.flight .rail{right:8px;gap:14px}}
+.flight .hint.off{opacity:0}
+/* phones, touch, reduced motion: the five stations stacked, each alive on its own */
+.flight.static{height:auto;overflow:visible}
+.flight.static .stage{position:static}
+.flight.static .st{position:relative;aspect-ratio:16/9;overflow:hidden;border-top:1px solid var(--line)}
+.flight.static .st video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.flight.static .st::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(8,9,11,.85),rgba(8,9,11,.2) 55%,transparent);pointer-events:none}
+.flight.static .st .fcopy{position:absolute;z-index:2;left:var(--gut);right:var(--gut);bottom:22px;max-width:none;opacity:1;transform:none;pointer-events:auto}
+.flight.static .st .fcopy h3{font-size:clamp(20px,5.5vw,30px)}.flight.static .st .fcopy p{font-size:14px;max-width:none}
+.flight.static .scrim,.flight.static .rail,.flight.static .hint,.flight.static .poster{display:none}
+.flight.static .fhead{position:static;padding:34px var(--gut) 18px}
+@media(max-width:760px){.flight .fhead .sm{display:none}}
 .rv{will-change:transform,opacity}
 .lines-mask .line{overflow:hidden;display:block}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.giant{background-position:0 0}}
@@ -404,20 +413,10 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
 
 <!-- WORK -->
 <!-- THE FLIGHT: five stations, one camera, scroll drives time -->
-<section class="flight" id="flight" aria-label="The five systems as one world">
-  <div class="stage">
-    <div class="scene" data-k="0" data-clip="assets/world/dive-01.mp4" data-loop="assets/world/loop-01.mp4"><img src="assets/world/poster-01.jpg" alt="" decoding="async" loading="lazy"></div>
-    <div class="scene conn" data-k="0" data-clip="assets/world/conn-01.mp4"><img src="assets/world/poster-02.jpg" alt="" decoding="async" loading="lazy"></div>
-    <div class="scene" data-k="1" data-clip="assets/world/dive-02.mp4" data-loop="assets/world/loop-02.mp4"><img src="assets/world/poster-02.jpg" alt="" decoding="async" loading="lazy"></div>
-    <div class="scene conn" data-k="1" data-clip="assets/world/conn-02.mp4"><img src="assets/world/poster-03.jpg" alt="" decoding="async" loading="lazy"></div>
-    <div class="scene" data-k="2" data-clip="assets/world/dive-03.mp4" data-loop="assets/world/loop-03.mp4"><img src="assets/world/poster-03.jpg" alt="" decoding="async" loading="lazy"></div>
-    <div class="scene conn" data-k="2" data-clip="assets/world/conn-03.mp4"><img src="assets/world/poster-04.jpg" alt="" decoding="async" loading="lazy"></div>
-    <div class="scene" data-k="3" data-clip="assets/world/dive-04.mp4" data-loop="assets/world/loop-04.mp4"><img src="assets/world/poster-04.jpg" alt="" decoding="async" loading="lazy"></div>
-    <div class="scene conn" data-k="3" data-clip="assets/world/conn-04.mp4"><img src="assets/world/poster-05.jpg" alt="" decoding="async" loading="lazy"></div>
-    <div class="scene" data-k="4" data-clip="assets/world/dive-05.mp4" data-loop="assets/world/loop-05.mp4"><img src="assets/world/poster-05.jpg" alt="" decoding="async" loading="lazy"></div>
-  </div>
+<section class="flight" id="flight" data-clips="assets/world/" aria-label="The five systems as one world">
+  <div class="stage"><img class="poster" src="assets/world/poster-01.jpg" alt="" decoding="async"></div>
   <div class="scrim" aria-hidden="true"></div>
-  <div class="fhead"><span class="eyebrow">The work, as one world</span><span class="sm">Five systems for one client. Scroll to fly through them.</span></div>
+  <div class="fhead"><span class="eyebrow">The work, as one world</span><span class="sm">Five systems for one client. Scroll to fly from one to the next.</span></div>
   <div class="fcopy on"><span class="eyebrow m">01 · Email triage</span><h3 class="d">95% of daily email handled without a person.</h3><p>Hundreds of emails a day, sorted and answered by a pipeline that learned from the QC team’s corrections.</p></div>
   <div class="fcopy"><span class="eyebrow m">02 · Voice &amp; text agent</span><h3 class="d">Routine calls answered in ~115 ms.</h3><p>Callers are recognised by number, orders looked up, requests routed. The model is only asked when the system is unsure.</p></div>
   <div class="fcopy"><span class="eyebrow m">03 · Document routing</span><h3 class="d">Every report lands in the right queue.</h3><p>Ten look-alike report types told apart by their layout, not just their words. 90–98% per class.</p></div>
@@ -669,12 +668,12 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
 (function(){
   var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches, fine=matchMedia('(pointer:fine) and (hover:hover)').matches;
 /* motion studies: fetch when near, play only while on screen, poster only under reduced motion */
-(function(){var vids=document.querySelectorAll('video[data-src]');if(!vids.length||reduce)return;
+var lazyVideo=(function(){ if(reduce) return function(){};
   var io=new IntersectionObserver(function(en){en.forEach(function(e){var v=e.target;
     if(e.isIntersecting){if(!v.getAttribute('src')){v.src=v.getAttribute('data-src');v.load();}v.play().catch(function(){});}
     else if(v.getAttribute('src'))v.pause();});},{rootMargin:'240px 0px',threshold:.05});
-  vids.forEach(function(v){io.observe(v);});
-})();
+  return function(v){ io.observe(v); }; })();
+document.querySelectorAll('video[data-src]').forEach(lazyVideo);
 /* the ground is deep space: a sparse starfield behind everything, a meteor now and then */
 (function(){
   var cv=document.getElementById('sky'),ctx=cv.getContext('2d'),w=0,h=0,mobile=false,meteors=[],next=0,last=0,stars=[];
@@ -704,7 +703,7 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
   /* smooth scroll */
   var lenis=null;
   if(!reduce&&window.Lenis){ lenis=new Lenis({lerp:0.1,smoothWheel:true}); lenis.on('scroll',ScrollTrigger.update); gsap.ticker.add(function(t){lenis.raf(t*1000);}); gsap.ticker.lagSmoothing(0); window.__lenis=lenis; }
-  function go(el){ var y=el.getBoundingClientRect().top+scrollY-60; lenis?lenis.scrollTo(y):scrollTo({top:y,behavior:'smooth'}); }
+  function go(el){ dispatchEvent(new Event('flight:release')); var y=el.getBoundingClientRect().top+scrollY-60; lenis?lenis.scrollTo(y):scrollTo({top:y,behavior:'smooth'}); }
   document.querySelectorAll('a[href^="#"]').forEach(function(a){ a.addEventListener('click',function(e){ var id=a.getAttribute('href'); if(id.length<2)return; var el=document.querySelector(id); if(!el)return; e.preventDefault(); go(el); }); });
 
   /* nav + progress */
@@ -844,62 +843,59 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
     document.getElementById('flow-replay').addEventListener('click',function(){light(-1);gh.setAttribute('opacity',0);tl.restart();});
     addEventListener('resize',function(){var s=o.s;layout();var p=at(s);put(pk,p);put(glow,p);lit.style.strokeDashoffset=total-s;});
   })();
-  /* the flight: five stations, one continuous camera, scroll drives time.
-     dives + connectors chained from each other's real frames (scroll-world method) */
+  /* the flight: five stations, one world. Scroll is a command, not a scrubber (Emons-style):
+     a gesture plays the flight to the next station, then the station loops; up flies back. */
   (function(){
     var sec=document.getElementById('flight'); if(!sec) return;
-    var scenes=[].slice.call(sec.querySelectorAll('.scene')), copies=[].slice.call(sec.querySelectorAll('.fcopy')), dots=[].slice.call(sec.querySelectorAll('.rail i'));
-    var segs=scenes.map(function(el){return {el:el,conn:el.classList.contains('conn'),k:el.getAttribute('data-k')|0,src:el.getAttribute('data-clip'),loop:el.getAttribute('data-loop'),lv:null,lready:false,w:el.classList.contains('conn')?0.7:1,v:null,ready:false,cur:0,tgt:0,loading:false};});
-    var total=segs.reduce(function(a,s){return a+s.w;},0), off=0; segs.forEach(function(s){s.a=off/total;off+=s.w;s.b=off/total;});
-    var coarse=matchMedia('(hover:none) and (pointer:coarse)').matches, FADE=0.012, p=0, armed=false;
-    function load(s){ if(reduce||s.loading||!s.src) return; s.loading=true;
-      fetch(s.src).then(function(r){return r.ok?r.blob():Promise.reject();}).then(function(b){
-        var v=document.createElement('video'); v.muted=true; v.playsInline=true; v.preload='auto'; v.setAttribute('muted',''); v.setAttribute('playsinline','');
-        v.src=URL.createObjectURL(b); v.addEventListener('loadedmetadata',function(){s.ready=true;});
-        v.addEventListener('seeked',function(){s.el.classList.add('live');},{once:true});
-        s.el.appendChild(v); s.v=v; }).catch(function(){s.loading=false;}); }
-    function loadLoop(s){ if(reduce||!s.loop||s.lv) return; s.lv=true;
-      fetch(s.loop).then(function(r){return r.ok?r.blob():Promise.reject();}).then(function(b){
-        var v=document.createElement('video'); v.className='loop'; v.muted=true; v.loop=true; v.playsInline=true; v.preload='auto'; v.setAttribute('muted',''); v.setAttribute('playsinline','');
-        v.src=URL.createObjectURL(b); v.addEventListener('canplay',function(){s.lready=true;apply();},{once:true}); s.el.appendChild(v); s.lv=v; }).catch(function(){s.lv=null;}); }
-    /* resting at a station: the scrub frame hands over to a loop that starts on that same frame */
-    var restTimer=null, resting=null;
-    function leaveRest(){ if(!resting) return; var r=resting; resting=null; gsap.killTweensOf(r); r.el.classList.remove('rest');
-      setTimeout(function(){ if(!r.el.classList.contains('rest')&&r.lv&&r.lv.pause) r.lv.pause(); },550); }
-    /* stop anywhere in a station: the camera finishes its approach, then the loop takes over on that same frame */
-    function enterRest(s){ resting=s;
-      gsap.to(s,{cur:1,duration:0.7,ease:'power2.inOut',overwrite:true,
-        onUpdate:function(){ if(s.v&&s.ready&&!s.v.seeking){ try{ s.v.currentTime=Math.min(0.999,s.cur)*(s.v.duration||1); }catch(e){} } },
-        onComplete:function(){ if(resting!==s) return; try{ s.lv.currentTime=0; }catch(e){} var pr=s.lv.play(); if(pr&&pr.catch) pr.catch(function(){}); s.el.classList.add('rest'); }}); }
-    function apply(){
-      var ci=0; segs.forEach(function(s,i){ if(p>=s.a) ci=i; });
-      segs.forEach(function(s,i){
-        var local=Math.min(1,Math.max(0,(p-s.a)/(s.b-s.a))); s.tgt=local;
-        var out=p<s.a?s.a-p:(p>s.b?p-s.b:0), op=Math.max(0,Math.min(1,1-out/FADE));
-        s.el.style.opacity=op; s.el.style.zIndex=i===ci?20:10+Math.round(op*5);
-        if(!s.ready) s.el.style.setProperty('--z',(1.03+local*0.1).toFixed(3));
-      });
-      leaveRest(); clearTimeout(restTimer);
-      var cur=segs[ci];
-      if(!cur.conn&&cur.tgt>=0.2&&cur.lready){ restTimer=setTimeout(function(){ enterRest(cur); },450); }
-      var c=segs[ci], k=c.conn&&c.tgt>0.5?c.k+1:c.k;
-      copies.forEach(function(el,i){ el.classList.toggle('on',i===k); });
-      dots.forEach(function(d,i){ d.classList.toggle('on',i===k); });
-      sec.classList.toggle('flying',p>0.02);
+    var stage=sec.querySelector('.stage'), poster=stage.querySelector('.poster'), copies=[].slice.call(sec.querySelectorAll('.fcopy')), dots=[].slice.call(sec.querySelectorAll('.rail i')), hint=sec.querySelector('.hint');
+    var base=sec.getAttribute('data-clips'), N=5, RATE=1.35;
+    var interactive=matchMedia('(min-width:861px) and (hover:hover) and (pointer:fine)').matches&&!reduce&&!!lenis;
+    if(!interactive){ sec.classList.add('static'); poster.remove();
+      for(var i=0;i<N;i++){ var st=document.createElement('div'); st.className='st';
+        st.innerHTML='<video muted loop playsinline preload="none" poster="'+base+'poster-0'+(i+1)+'.jpg" data-src="assets/video/case-0'+(i+1)+'.mp4" aria-hidden="true"></video>';
+        st.appendChild(copies[i]); copies[i].classList.add('on'); stage.appendChild(st); lazyVideo(st.firstChild); }
+      return; }
+    var clips={}, shown=null, k=0, busy=false, locked=false, passing=0, cool=0;
+    function clip(id){ return clips[id]||(clips[id]={id:id,v:null,ready:false,loading:false}); }
+    function load(id){ var c=clip(id); if(c.loading) return c; c.loading=true;
+      fetch(base+id+'.mp4').then(function(r){return r.ok?r.blob():Promise.reject();}).then(function(b){
+        var v=document.createElement('video'); v.muted=true; v.playsInline=true; v.preload='auto'; v.setAttribute('muted',''); v.setAttribute('playsinline',''); v.src=URL.createObjectURL(b);
+        v.addEventListener('canplaythrough',function(){c.ready=true;},{once:true}); stage.appendChild(v); c.v=v; }).catch(function(){c.loading=false;}); return c; }
+    function ids(i){ var a=['loop-0'+(i+1)]; if(i<N-1) a.push('conn-0'+(i+1),'dive-0'+(i+2),'loop-0'+(i+2)); if(i>0) a.push('dive-0'+(i+1)+'-r','conn-0'+i+'-r','loop-0'+i); return a; }
+    function warm(i){ ids(i).forEach(load); }
+    function show(c,cut){ if(shown&&shown!==c) shown.v.classList.remove('on'); c.v.classList.toggle('cut',!!cut); c.v.classList.add('on'); shown=c; poster.classList.add('off');
+      for(var id in clips){ var o=clips[id]; if(o!==c&&o.v&&!o.v.paused) o.v.pause(); } }
+    function play(c,rate,onEnd){ var v=c.v; v.loop=false; v.playbackRate=rate; v.currentTime=0;
+      v.addEventListener('ended',function f(){ v.removeEventListener('ended',f); onEnd&&onEnd(); }); v.play().catch(function(){}); }
+    function loopAt(i){ var c=clip('loop-0'+(i+1)); if(!c.v){ load(c.id); setTimeout(function(){ loopAt(i); },150); return; }
+      c.v.loop=true; c.v.playbackRate=1; c.v.currentTime=0; c.v.play().catch(function(){}); show(c,true); }
+    function setCopy(i){ copies.forEach(function(c,j){ c.classList.toggle('on',j===i); }); dots.forEach(function(d,j){ d.classList.toggle('on',j===i); }); }
+    function go(to){ if(busy||to<0||to>=N||to===k) return; var from=k, down=to>from;
+      var a=down?clip('conn-0'+(from+1)):clip('dive-0'+(from+1)+'-r'), b=down?clip('dive-0'+(to+1)):clip('conn-0'+(to+1)+'-r');
+      busy=true; k=to; hint.classList.add('off'); warm(to);
+      if(!(a.ready&&b.ready)){ setCopy(to); loopAt(to); busy=false; return; }
+      copies[from].classList.remove('on'); show(a,false); play(a,RATE,function(){ show(b,true); play(b,RATE,function(){ loopAt(to); busy=false; }); setCopy(to); });
     }
-    function tick(){
-      var eps=coarse?0.02:0.008;
-      segs.forEach(function(s){ if(s===resting||!s.v||!s.ready||s.v.seeking) return;
-        if(Math.abs(s.cur-s.tgt)<0.0015) return; s.cur+=(s.tgt-s.cur)*0.2;
-        var t=Math.min(0.999,Math.max(0,s.cur))*(s.v.duration||1);
-        if(Math.abs(s.v.currentTime-t)>eps){ try{ s.v.currentTime=t; }catch(e){} } });
-      requestAnimationFrame(tick);
-    }
-    function arm(){ if(armed) return; armed=true; segs.forEach(function(s){ load(s); loadLoop(s); }); }
-    ScrollTrigger.create({trigger:sec,start:'top top',end:'+='+Math.round(total*90)+'%',pin:true,scrub:true,anticipatePin:1,onUpdate:function(st){p=st.progress;apply();},onToggle:function(st){if(st.isActive)arm();}});
-    ScrollTrigger.create({trigger:sec,start:'top 160%',once:true,onEnter:arm});
-    if(coarse) addEventListener('touchstart',function(){ segs.forEach(function(s){ if(s.v){ var pr=s.v.play(); if(pr&&pr.then) pr.then(function(){s.v.pause();}).catch(function(){}); } }); },{once:true,passive:true});
-    apply(); if(!reduce) requestAnimationFrame(tick);
+    function top(){ return sec.getBoundingClientRect().top+scrollY; }
+    function lock(){ if(locked) return; locked=true; lenis.stop(); }
+    function unlock(){ locked=false; passing=Date.now()+1800; lenis.start(); }
+    function release(down){ unlock(); lenis.scrollTo(down?top()+sec.offsetHeight:top()-innerHeight,{duration:1.1,force:true}); }
+    function arrive(i,intro){ lock(); lenis.scrollTo(top(),{immediate:true,force:true}); warm(i); k=i; setCopy(i);
+      var d=clip('dive-01'); if(intro&&d.ready){ busy=true; show(d,true); play(d,1,function(){ loopAt(0); busy=false; }); } else loopAt(i); }
+    /* the section is exactly one viewport tall, so its top meeting the viewport top is the one
+       scroll position where it is fully in view: crossing it downward = arriving from above,
+       crossing it upward = arriving from below */
+    ScrollTrigger.create({trigger:sec,start:'top top',end:'bottom top',
+      onEnter:function(){ if(locked||Date.now()<passing) return; arrive(0,true); },
+      onLeaveBack:function(){ if(locked||Date.now()<passing) return; arrive(N-1,false); }});
+    addEventListener('scroll',function(){ if(locked&&Date.now()>passing&&Math.abs(scrollY-top())>innerHeight*0.6) unlock(); },{passive:true});
+    ScrollTrigger.create({trigger:sec,start:'top 170%',once:true,onEnter:function(){ ['dive-01','loop-01','conn-01','dive-02','loop-02'].forEach(load); }});
+    function step(down){ if(busy) return; if(down){ k===N-1?release(true):go(k+1); } else { k===0?release(false):go(k-1); } }
+    addEventListener('wheel',function(e){ if(!locked) return; e.preventDefault(); if(Math.abs(e.deltaY)<4||Date.now()<cool) return; cool=Date.now()+350; step(e.deltaY>0); },{passive:false});
+    addEventListener('keydown',function(e){ if(!locked) return; var d=e.key==='ArrowDown'||e.key==='PageDown'||e.key===' ', u=e.key==='ArrowUp'||e.key==='PageUp'; if(!d&&!u) return; e.preventDefault(); step(d); });
+    dots.forEach(function(d,j){ d.addEventListener('click',function(){ if(busy||j===k) return; k=j; warm(j); setCopy(j); loopAt(j); hint.classList.add('off'); }); });
+    addEventListener('flight:release',function(){ passing=Date.now()+2000; if(locked){ locked=false; lenis.start(); } });
+    window.flight={state:function(){ return {k:k,locked:locked,busy:busy,shown:shown&&shown.id,loaded:Object.keys(clips).filter(function(i){return clips[i].ready;})}; }};
   })();
   /* statement scrub */
   var big=document.getElementById('big');
