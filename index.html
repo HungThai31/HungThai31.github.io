@@ -142,6 +142,7 @@ section.alt{background:var(--bg2)}
 .vis{display:grid;gap:12px}
 .fig{position:relative;border:1px solid var(--line);background:var(--panel);border-radius:6px;overflow:hidden}
 .fig svg.ill{width:100%;height:auto;display:block;padding:5%}
+.fig.clip video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
 .fig img{width:100%;aspect-ratio:4/3;object-fit:cover;filter:grayscale(1) contrast(1.05);transition:transform .9s var(--ease),filter .5s}
 .fig:hover img{transform:scale(1.03);filter:grayscale(.3)}
 .fig .tag{position:absolute;z-index:2;left:12px;top:12px;background:rgba(8,9,11,.75);backdrop-filter:blur(8px)}
@@ -405,7 +406,7 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
           <p class="stack">Python · gpt-oss:20b via Ollama · LangChain · nomic-embed · fully on-premise</p>
         </div></details>
       </div>
-      <div class="vis rv"><div class="fig bars">
+      <div class="vis rv"><div class="fig clip"><span class="tag">Motion study</span><video muted loop playsinline preload="none" poster="assets/video/case-01.jpg" data-src="assets/video/case-01.mp4" aria-hidden="true"></video></div><div class="fig bars">
         <div class="bar pair"><div class="lab"><span>Auto-resolved · before</span><b>50–60%</b></div><div class="tr"><div class="fl" data-w="55"></div></div></div>
         <div class="bar pair"><div class="lab"><span>Auto-resolved · now</span><b>95%</b></div><div class="tr"><div class="fl k" data-w="95"></div></div></div>
         <div class="bar pair" style="margin-top:8px"><div class="lab"><span>Read by staff · before</span><b>~45%</b></div><div class="tr"><div class="fl b" data-w="45"></div></div></div>
@@ -461,7 +462,7 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
           <p class="stack">Python · LangGraph · LiveKit · FasterWhisper · Kokoro · Silero VAD · FastAPI · Twilio</p>
         </div></details>
       </div>
-      <div class="vis rv">
+      <div class="vis rv"><div class="fig clip"><span class="tag">Motion study</span><video muted loop playsinline preload="none" poster="assets/video/case-02.jpg" data-src="assets/video/case-02.mp4" aria-hidden="true"></video></div>
         <div class="vs"><div><div class="h k">No-model path</div><div class="v k" data-count="38.5" data-dec="1" data-suffix="%">0%</div><div class="l">of traffic</div></div><div><div class="h">Model path</div><div class="v" data-count="61.5" data-dec="1" data-suffix="%">0%</div><div class="l">of traffic</div></div><div><div class="h k">Accuracy</div><div class="v k" data-count="100" data-suffix="%">0%</div><div class="l">0 errors</div></div><div><div class="h">Accuracy</div><div class="v" data-count="75" data-suffix="%">0%</div><div class="l">every error lives here</div></div><div><div class="h k">Latency</div><div class="v k" data-count="115" data-prefix="~" data-suffix=" ms">~0 ms</div><div class="l">per decision</div></div><div><div class="h">Latency</div><div class="v" data-count="485" data-prefix="~" data-suffix=" ms">~0 ms</div><div class="l">per decision</div></div></div>
                 <div class="vid2">
           <div class="vid"><video controls preload="metadata" playsinline poster="assets/video/voice-call-demo.jpg" aria-label="Inbound call demo, 3 minutes 19 seconds. Personal details in the audio are muted."><source src="assets/video/voice-call-demo.mp4" type="video/mp4" /></video><div class="cap">Inbound · 3:19 · personal details muted</div></div>
@@ -486,9 +487,7 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
         <div class="chips rv"><span class="chip k">90–98% per class</span><span class="chip">~10 report types</span><span class="chip">~10,000 PDFs</span></div>
         <details class="more rv"><summary>How it works<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><div class="body"><ul><li>Layout-aware model (LayoutLMv3) chosen over text-only classification because several report types share vocabulary and differ mainly in structure.</li><li>Majority classes downsampled; minority classes augmented with noise, flips and rotation.</li><li>OCR via PaddleOCR.</li></ul><p class="stack">LayoutLMv3 · PaddleOCR · Python</p></div></details>
       </div>
-      <div class="vis rv"><div class="fig">
-        <svg class="ill" viewBox="0 0 400 300" aria-hidden="true"><g fill="none" stroke="#6B7079" stroke-width="1.5"><rect x="28" y="36" width="92" height="118" rx="4"/><rect x="28" y="96" width="92" height="118" rx="4" fill="#111419"/><rect x="28" y="156" width="92" height="118" rx="4" fill="#111419"/></g><g stroke="#A9ADB4" stroke-width="2" stroke-linecap="round"><path d="M42 172h40M42 184h64M42 196h52"/><path d="M42 216h64" stroke="#3D6BFF"/><path d="M42 230h30M80 230h26"/><path d="M42 246h64M42 258h40"/></g><g stroke="#3D6BFF" stroke-width="1.5" fill="none" stroke-linecap="round"><path d="M128 215c40 0 40-110 80-110h40"/><path d="M128 215h120"/><path d="M128 215c40 0 40 48 80 48h40" opacity=".55"/><path d="M243 100l6 5-6 5M243 210l6 5-6 5M243 258l6 5-6 5"/></g><g font-family="JetBrains Mono,monospace" font-size="11" fill="#F4F2EC"><rect x="258" y="88" width="114" height="34" rx="4" fill="#111419" stroke="#2A2F3A"/><text x="270" y="110">Residential</text><rect x="258" y="198" width="114" height="34" rx="4" fill="#111419" stroke="#3D6BFF"/><text x="270" y="220" fill="#6E92FF">Review queue</text><rect x="258" y="246" width="114" height="34" rx="4" fill="#111419" stroke="#2A2F3A"/><text x="270" y="268">Land / other</text></g><text x="28" y="24" font-family="JetBrains Mono,monospace" font-size="10" fill="#6B7079" letter-spacing="1.5">LAYOUT, NOT ONLY TEXT</text></svg>
-      </div></div>
+      <div class="vis rv"><div class="fig clip"><span class="tag">Motion study</span><video muted loop playsinline preload="none" poster="assets/video/case-03.jpg" data-src="assets/video/case-03.mp4" aria-hidden="true"></video></div></div>
     </div>
   </article>
 
@@ -507,7 +506,7 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
         <div class="chips rv"><span class="chip k">&gt;90% per class</span><span class="chip">500,000+ images</span><span class="chip">monthly retraining loop</span></div>
         <details class="more rv"><summary>How it works<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><div class="body"><p>YOLO classification model. The improvement loop matters more than the first training run: the client’s US QC team reviews output daily, their corrections become the next training set, and per-class accuracy is checked, not only the aggregate.</p><p class="stack">YOLO (classification) · Python</p></div></details>
       </div>
-      <div class="vis rv"><div class="fig" id="grid54"></div></div>
+      <div class="vis rv"><div class="fig clip"><span class="tag">Motion study</span><video muted loop playsinline preload="none" poster="assets/video/case-04.jpg" data-src="assets/video/case-04.mp4" aria-hidden="true"></video></div></div>
     </div>
   </article>
 
@@ -525,9 +524,7 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
         <div class="chips rv"><span class="chip k">classical CV → YOLO</span><span class="chip">in production</span></div>
         <details class="more rv"><summary>How it works<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><div class="body"><ul><li>Morphological removal of ruled lines, OCR boxes to suppress printed text, FFT analysis to isolate irregular signature regions.</li><li>Migrated to a YOLO detector once one could be trained on the client’s data.</li></ul><p class="stack">OpenCV · OCR · FFT → YOLO</p></div></details>
       </div>
-      <div class="vis rv"><div class="fig">
-        <svg class="ill" viewBox="0 0 400 300" aria-hidden="true"><rect x="70" y="22" width="260" height="256" rx="4" fill="#111419" stroke="#2A2F3A" stroke-width="1.5"/><g stroke="#343941" stroke-width="1.5" stroke-linecap="round"><path d="M96 56h150M96 74h208M96 92h180M96 110h208M96 128h120M96 146h208M96 164h160"/></g><path d="M96 230h208" stroke="#6B7079" stroke-width="1.5" stroke-dasharray="3 4"/><path d="M110 226c10-26 18-30 24-12s4 20 16 2 20-28 28-6 8 20 22-4 14-24 26-4 10 14 22 0 12-20 20-4" fill="none" stroke="#F4F2EC" stroke-width="2.4" stroke-linecap="round"/><rect x="98" y="196" width="190" height="48" rx="3" fill="none" stroke="#3D6BFF" stroke-width="1.5" stroke-dasharray="5 4"/><text x="298" y="214" font-family="JetBrains Mono,monospace" font-size="10" fill="#6E92FF">signature</text><text x="298" y="227" font-family="JetBrains Mono,monospace" font-size="10" fill="#6E92FF">found</text><text x="70" y="294" font-family="JetBrains Mono,monospace" font-size="10" fill="#6B7079" letter-spacing="1.5">RULED LINES REMOVED · TEXT SUPPRESSED · REGION ISOLATED</text></svg>
-      </div></div>
+      <div class="vis rv"><div class="fig clip"><span class="tag">Motion study</span><video muted loop playsinline preload="none" poster="assets/video/case-05.jpg" data-src="assets/video/case-05.mp4" aria-hidden="true"></video></div></div>
     </div>
   </article>
 
@@ -623,6 +620,13 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
 <script>
 (function(){
   var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches, fine=matchMedia('(pointer:fine) and (hover:hover)').matches;
+/* motion studies: fetch when near, play only while on screen, poster only under reduced motion */
+(function(){var vids=document.querySelectorAll('video[data-src]');if(!vids.length||reduce)return;
+  var io=new IntersectionObserver(function(en){en.forEach(function(e){var v=e.target;
+    if(e.isIntersecting){if(!v.getAttribute('src')){v.src=v.getAttribute('data-src');v.load();}v.play().catch(function(){});}
+    else if(v.getAttribute('src'))v.pause();});},{rootMargin:'240px 0px',threshold:.05});
+  vids.forEach(function(v){io.observe(v);});
+})();
 /* the ground is deep space: a sparse starfield behind everything, a meteor now and then */
 (function(){
   var cv=document.getElementById('sky'),ctx=cv.getContext('2d'),w=0,h=0,mobile=false,meteors=[],next=0,last=0,stars=[];
@@ -649,13 +653,6 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
   mq.innerHTML=(items.concat(items)).map(function(t){return '<span>'+t+'</span>';}).join('');
 
   /* 54-class grid */
-  var g=document.getElementById('grid54');
-  if(g){ var bad={'1-3':1,'3-1':1}, s='<svg class="ill" viewBox="0 0 400 300" aria-hidden="true"><text x="36" y="34" font-family="JetBrains Mono,monospace" font-size="10" fill="#6B7079" letter-spacing="1.5">54 REQUIRED PHOTO CLASSES</text>';
-    for(var r=0;r<4;r++)for(var c=0;c<6;c++){var x=36+c*56,y=52+r*54,b=bad[r+'-'+c];
-      s+='<rect x="'+x+'" y="'+y+'" width="46" height="42" rx="3" fill="#111419" stroke="'+(b?'#E5484D':'#2A2F3A')+'"/>';
-      s+=b?'<path d="M'+(x+17)+' '+(y+15)+'l12 12M'+(x+29)+' '+(y+15)+'l-12 12" stroke="#E5484D" stroke-width="2" stroke-linecap="round"/>':'<path d="M'+(x+15)+' '+(y+22)+'l7 7 11-13" stroke="#3D6BFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';}
-    s+='<text x="36" y="284" font-family="JetBrains Mono,monospace" font-size="11" fill="#E5484D">2 flagged for QC</text><text x="364" y="284" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="11" fill="#6E92FF">22 confirmed</text></svg>'; g.innerHTML=s; }
-
   /* smooth scroll */
   var lenis=null;
   if(!reduce&&window.Lenis){ lenis=new Lenis({lerp:0.1,smoothWheel:true}); lenis.on('scroll',ScrollTrigger.update); gsap.ticker.add(function(t){lenis.raf(t*1000);}); gsap.ticker.lagSmoothing(0); window.__lenis=lenis; }
