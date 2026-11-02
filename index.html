@@ -326,6 +326,28 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
 .result .num{position:relative}
 .result .num::before{content:"";position:absolute;inset:-12% -8%;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 60%,rgba(61,107,255,.24),rgba(61,107,255,.06) 45%,transparent 70%)}
 .chap .wm{-webkit-text-stroke-color:rgba(244,242,236,.09);filter:blur(.8px)}
+/* the flight */
+.flight{position:relative;height:100svh;overflow:hidden;background:#0B0D12;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.flight .stage,.flight .scrim{position:absolute;inset:0}
+.flight .scene{position:absolute;inset:0;opacity:0;will-change:opacity}
+.flight .scene img,.flight .scene video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 46%}
+.flight .scene img{transform:scale(var(--z,1.03));transition:opacity .4s}
+.flight .scene.live img{opacity:0}
+.flight .scrim{pointer-events:none;background:linear-gradient(90deg,rgba(8,9,11,.82),rgba(8,9,11,.3) 46%,transparent 68%),linear-gradient(0deg,rgba(8,9,11,.75),transparent 42%),linear-gradient(180deg,rgba(8,9,11,.6),transparent 30%)}
+.flight .fhead,.flight .fcopy,.flight .rail,.flight .hint{position:absolute;z-index:40}
+.flight .scrim{z-index:30}
+.flight .fhead{left:max(var(--gut),calc((100% - var(--max))/2));top:calc(70px + 5vh);display:grid;gap:8px}
+.flight .fcopy{left:max(var(--gut),calc((100% - var(--max))/2));bottom:clamp(44px,9vh,100px);max-width:min(560px,80vw);opacity:0;transform:translateY(14px);transition:opacity .45s,transform .45s;pointer-events:none}
+.flight .fcopy.on{opacity:1;transform:none}
+.flight .fcopy .eyebrow{display:block;margin-bottom:12px}
+.flight .fcopy h3{font-size:clamp(26px,3.3vw,48px);max-width:16ch}
+.flight .fcopy p{margin-top:14px;color:var(--ink2);font-size:clamp(15px,1.2vw,18px);max-width:42ch;line-height:1.5}
+.flight .rail{right:clamp(14px,2.4vw,30px);top:50%;transform:translateY(-50%);display:grid;gap:18px;padding:12px 6px}
+.flight .rail i{display:block;width:8px;height:8px;border-radius:50%;background:rgba(244,242,236,.25);transition:transform .3s,background .3s,box-shadow .3s}
+.flight .rail i.on{background:var(--acc);transform:scale(1.5);box-shadow:0 0 0 5px var(--accdim)}
+.flight .hint{left:50%;bottom:20px;transform:translateX(-50%);font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);transition:opacity .4s}
+.flight.flying .hint{opacity:0}
+@media(max-width:760px){.flight .fhead .sm{display:none}.flight .fcopy{bottom:calc(36px + env(safe-area-inset-bottom))}.flight .fcopy h3{font-size:clamp(22px,6.5vw,30px)}.flight .rail{right:8px;gap:14px}}
 .rv{will-change:transform,opacity}
 .lines-mask .line{overflow:hidden;display:block}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.giant{background-position:0 0}}
@@ -379,6 +401,30 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
 </div></section>
 
 <!-- WORK -->
+<!-- THE FLIGHT: five stations, one camera, scroll drives time -->
+<section class="flight" id="flight" aria-label="The five systems as one world">
+  <div class="stage">
+    <div class="scene" data-k="0" data-clip="assets/world/dive-01.mp4"><img src="assets/world/poster-01.jpg" alt="" decoding="async" loading="lazy"></div>
+    <div class="scene conn" data-k="0" data-clip="assets/world/conn-01.mp4"><img src="assets/world/poster-02.jpg" alt="" decoding="async" loading="lazy"></div>
+    <div class="scene" data-k="1" data-clip="assets/world/dive-02.mp4"><img src="assets/world/poster-02.jpg" alt="" decoding="async" loading="lazy"></div>
+    <div class="scene conn" data-k="1" data-clip="assets/world/conn-02.mp4"><img src="assets/world/poster-03.jpg" alt="" decoding="async" loading="lazy"></div>
+    <div class="scene" data-k="2" data-clip="assets/world/dive-03.mp4"><img src="assets/world/poster-03.jpg" alt="" decoding="async" loading="lazy"></div>
+    <div class="scene conn" data-k="2" data-clip="assets/world/conn-03.mp4"><img src="assets/world/poster-04.jpg" alt="" decoding="async" loading="lazy"></div>
+    <div class="scene" data-k="3" data-clip="assets/world/dive-04.mp4"><img src="assets/world/poster-04.jpg" alt="" decoding="async" loading="lazy"></div>
+    <div class="scene conn" data-k="3" data-clip="assets/world/conn-04.mp4"><img src="assets/world/poster-05.jpg" alt="" decoding="async" loading="lazy"></div>
+    <div class="scene" data-k="4" data-clip="assets/world/dive-05.mp4"><img src="assets/world/poster-05.jpg" alt="" decoding="async" loading="lazy"></div>
+  </div>
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="fhead"><span class="eyebrow">The work, as one world</span><span class="sm">Five systems for one client. Scroll to fly through them.</span></div>
+  <div class="fcopy on"><span class="eyebrow m">01 · Email triage</span><h3 class="d">95% of daily email handled without a person.</h3><p>Hundreds of emails a day, sorted and answered by a pipeline that learned from the QC team’s corrections.</p></div>
+  <div class="fcopy"><span class="eyebrow m">02 · Voice &amp; text agent</span><h3 class="d">Routine calls answered in ~115 ms.</h3><p>Callers are recognised by number, orders looked up, requests routed. The model is only asked when the system is unsure.</p></div>
+  <div class="fcopy"><span class="eyebrow m">03 · Document routing</span><h3 class="d">Every report lands in the right queue.</h3><p>Ten look-alike report types told apart by their layout, not just their words. 90–98% per class.</p></div>
+  <div class="fcopy"><span class="eyebrow m">04 · Property photo check</span><h3 class="d">54 photo classes checked before a human looks.</h3><p>Missing or mismatched photos flagged automatically, retrained monthly from QC’s corrections.</p></div>
+  <div class="fcopy"><span class="eyebrow m">05 · Signature detection</span><h3 class="d">Unsigned reports caught at intake.</h3><p>Stopped before they move downstream instead of bouncing back later.</p></div>
+  <div class="rail" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+  <div class="hint" aria-hidden="true">scroll to fly</div>
+</section>
+
 <section class="alt" id="work"><div class="wrap">
   <div class="head">
     <div><span class="eyebrow">Selected work</span><h2 class="d d-l split">Six problems. Six fixes that stayed fixed.</h2></div>
@@ -795,6 +841,47 @@ section.alt{background:linear-gradient(180deg,#10131A 0,var(--bg2) 260px);box-sh
     var on=false; new IntersectionObserver(function(en){on=en[0].isIntersecting; on?tl.play():tl.pause();},{threshold:.35}).observe(flow);
     document.getElementById('flow-replay').addEventListener('click',function(){light(-1);gh.setAttribute('opacity',0);tl.restart();});
     addEventListener('resize',function(){var s=o.s;layout();var p=at(s);put(pk,p);put(glow,p);lit.style.strokeDashoffset=total-s;});
+  })();
+  /* the flight: five stations, one continuous camera, scroll drives time.
+     dives + connectors chained from each other's real frames (scroll-world method) */
+  (function(){
+    var sec=document.getElementById('flight'); if(!sec) return;
+    var scenes=[].slice.call(sec.querySelectorAll('.scene')), copies=[].slice.call(sec.querySelectorAll('.fcopy')), dots=[].slice.call(sec.querySelectorAll('.rail i'));
+    var segs=scenes.map(function(el){return {el:el,conn:el.classList.contains('conn'),k:el.getAttribute('data-k')|0,src:el.getAttribute('data-clip'),w:el.classList.contains('conn')?0.7:1,v:null,ready:false,cur:0,tgt:0,loading:false};});
+    var total=segs.reduce(function(a,s){return a+s.w;},0), off=0; segs.forEach(function(s){s.a=off/total;off+=s.w;s.b=off/total;});
+    var coarse=matchMedia('(hover:none) and (pointer:coarse)').matches, FADE=0.012, p=0, armed=false;
+    function load(s){ if(reduce||s.loading||!s.src) return; s.loading=true;
+      fetch(s.src).then(function(r){return r.ok?r.blob():Promise.reject();}).then(function(b){
+        var v=document.createElement('video'); v.muted=true; v.playsInline=true; v.preload='auto'; v.setAttribute('muted',''); v.setAttribute('playsinline','');
+        v.src=URL.createObjectURL(b); v.addEventListener('loadedmetadata',function(){s.ready=true;});
+        v.addEventListener('seeked',function(){s.el.classList.add('live');},{once:true});
+        s.el.appendChild(v); s.v=v; }).catch(function(){s.loading=false;}); }
+    function apply(){
+      var ci=0; segs.forEach(function(s,i){ if(p>=s.a) ci=i; });
+      segs.forEach(function(s,i){
+        var local=Math.min(1,Math.max(0,(p-s.a)/(s.b-s.a))); s.tgt=local;
+        var out=p<s.a?s.a-p:(p>s.b?p-s.b:0), op=Math.max(0,Math.min(1,1-out/FADE));
+        s.el.style.opacity=op; s.el.style.zIndex=i===ci?20:10+Math.round(op*5);
+        if(!s.ready) s.el.style.setProperty('--z',(1.03+local*0.1).toFixed(3));
+      });
+      var c=segs[ci], k=c.conn&&c.tgt>0.5?c.k+1:c.k;
+      copies.forEach(function(el,i){ el.classList.toggle('on',i===k); });
+      dots.forEach(function(d,i){ d.classList.toggle('on',i===k); });
+      sec.classList.toggle('flying',p>0.02);
+    }
+    function tick(){
+      var eps=coarse?0.02:0.008;
+      segs.forEach(function(s){ if(!s.v||!s.ready||s.v.seeking) return;
+        if(Math.abs(s.cur-s.tgt)<0.0015) return; s.cur+=(s.tgt-s.cur)*0.2;
+        var t=Math.min(0.999,Math.max(0,s.cur))*(s.v.duration||1);
+        if(Math.abs(s.v.currentTime-t)>eps){ try{ s.v.currentTime=t; }catch(e){} } });
+      requestAnimationFrame(tick);
+    }
+    function arm(){ if(armed) return; armed=true; segs.forEach(load); }
+    ScrollTrigger.create({trigger:sec,start:'top top',end:'+='+Math.round(total*90)+'%',pin:true,scrub:true,anticipatePin:1,onUpdate:function(st){p=st.progress;apply();},onToggle:function(st){if(st.isActive)arm();}});
+    ScrollTrigger.create({trigger:sec,start:'top 160%',once:true,onEnter:arm});
+    if(coarse) addEventListener('touchstart',function(){ segs.forEach(function(s){ if(s.v){ var pr=s.v.play(); if(pr&&pr.then) pr.then(function(){s.v.pause();}).catch(function(){}); } }); },{once:true,passive:true});
+    apply(); if(!reduce) requestAnimationFrame(tick);
   })();
   /* statement scrub */
   var big=document.getElementById('big');
